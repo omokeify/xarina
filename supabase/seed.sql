@@ -47,8 +47,11 @@ join identities i on i.user_id = s.id;
 -- Fixed roles used by supabase/tests and e2e: ...001 + ...002 in Drop 04
 -- (upcoming), ...003 Available Now, ...004 Available Now with sold-out sizes
 -- (UK 6 / XS, UK 14 / XL), ...005 the only draft, ...013 fully sold out.
--- The concept marks four designs as FX-priced; they are seeded with the
--- concept's own fixed prices instead (FX display is not wired up yet).
+-- The concept marks four designs as FX-priced; they are seeded as fixed-price
+-- samples so the sample store does not depend on FX rates. Storefront FX display
+-- is wired (20261120000302_fx_storefront_prices.sql) and uses the same conversion
+-- and rounding as checkout; set pricing_mode = 'fx' with base_currency and
+-- base_amount_minor to exercise it.
 -- ---------------------------------------------------------------------------
 insert into public.collections (id, slug, name, sort) values
   ('10000000-0000-4000-a000-000000000001', 'dresses', 'Dresses', 1),

@@ -8,6 +8,9 @@ export const LIMITS = {
   priveRequest: { limit: 5, windowSeconds: 3600 },
   priveSignIn: { limit: 5, windowSeconds: 600 },
   checkout: { limit: 20, windowSeconds: 600 },
+  // Provider webhooks retry legitimately, so this only throttles writes of
+  // rejected (bad-signature) deliveries, not genuine paid events.
+  webhookInvalid: { limit: 60, windowSeconds: 600 },
 } as const;
 export type LimitedAction = keyof typeof LIMITS;
 

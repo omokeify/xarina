@@ -46,7 +46,7 @@ Custom ecommerce site for Xarina ("Wearable statement dressing"): limited fashio
 
 ## Design
 
-- The mock-ups in `docs/reference/` are a **layout reference only, not the branding**.
+- The supplied mock-ups are a **layout reference only, not the branding**; the agreed layout is summarised in `docs/PRD.md`.
 - **Brand is locked** in `docs/brand/` (from the Xarina design system): `tokens.json`, `BRAND.md` (brand book) and the logo SVGs. Follow it exactly; don't invent colours or fonts.
 - Two themes as CSS variables:
   - **Ivory & Ink** (default): surface `#F4F0E8`, surface-raised `#FFFFFF`, surface-sunk `#E9E3D8`, ink `#1C1A17`, ink-muted `#5C564D`, line `#CFC6B8`, accent `#A88B5E`, action `#1C1A17`, on-action `#F4F0E8`, critical `#8A2B2B`.

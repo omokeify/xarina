@@ -17,7 +17,7 @@ export default async function AccessLinkPage({ params }: { params: Promise<{ tok
   const redeem = redeemAccessLink.bind(null, token);
 
   return (
-    <div data-theme="prive" className="bg-surface text-ink">
+    <div className="bg-surface text-ink transition-colors duration-200">
       <section className="px-space-4 py-space-7 mx-auto max-w-xl text-center">
         <p className="label text-accent">Xarina Privé</p>
         <h1 className="mt-space-3 font-display text-display-m">Your private access</h1>

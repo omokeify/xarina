@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Link not valid", robots: { index: fa
 
 export default function InvalidAccessLinkPage() {
   return (
-    <div data-theme="prive" className="bg-surface text-ink">
+    <div className="bg-surface text-ink transition-colors duration-200">
       <section className="px-space-4 py-space-7 mx-auto max-w-xl text-center">
         <h1 className="font-display text-display-m">This link can no longer be used</h1>
         <p className="mt-space-3 text-body text-ink-muted">

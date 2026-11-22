@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { supabasePublishableKey } from "@/lib/supabase/keys";
 
 // Public values are safe in the browser. Read them as literal property accesses
 // so Next.js can inline them at build time.
@@ -10,6 +11,6 @@ const publicSchema = z.object({
 
 export const publicEnv = publicSchema.parse({
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: supabasePublishableKey(),
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
 });

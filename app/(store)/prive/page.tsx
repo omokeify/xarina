@@ -18,7 +18,7 @@ export default async function PrivePage() {
   const window = member ? await getPriveWindow() : null;
 
   return (
-    <div data-theme="prive" className="bg-surface text-ink min-h-[70dvh]">
+    <div className="bg-surface text-ink min-h-[70dvh] transition-colors duration-200">
       <section className="border-line px-space-3 pt-space-6 pb-space-5 md:px-space-6 mx-auto max-w-screen-2xl border-b">
         <div className="gap-space-4 flex flex-col md:flex-row md:items-end md:justify-between">
           <div className="gap-space-3 flex max-w-2xl flex-col">

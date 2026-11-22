@@ -9,6 +9,7 @@ import { getEmailSite } from "@/lib/email/site";
 import type { Currency } from "@/lib/money";
 import { getProviderByName } from "@/lib/payments";
 import { handlePaymentWebhook, type WebhookDb } from "@/lib/payments/handle-webhook";
+import { isRateLimited } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -30,13 +31,17 @@ function serviceDb(): WebhookDb {
       return markPaidResult.parse(data);
     },
     async recordInvalidEvent(provider, rawBody) {
-      await db.from("payment_events").insert({
+      // A bad-signature flood must not fill the audit table. Genuine paid
+      // events never reach this path.
+      if (await isRateLimited("webhookInvalid")) return;
+      const { error } = await db.from("payment_events").insert({
         provider,
         provider_ref: "invalid",
         event_type: "invalid_signature",
         payload: { raw: rawBody.slice(0, 10_000) },
         signature_valid: false,
       });
+      if (error) console.error("invalid payment webhook audit failed", error.message);
     },
   };
 }

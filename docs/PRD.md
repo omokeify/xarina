@@ -42,7 +42,7 @@ One Next.js app (storefront + staff admin) on Vercel, with Supabase as the datab
 | Scheduled jobs | Supabase pg_cron + Edge Functions | Drop state changes, launch notifications, FX refresh |
 | Payments | Paystack (NGN) + Flutterwave or Paystack international (GBP, USD) behind one PaymentProvider interface | Nigerian-registered business; final routing is an open decision |
 | Email | Resend + React Email | Waitlist confirmation, Privé invites, drop alerts, order updates |
-| Analytics | Meta Pixel + Meta Conversions API, GA4 or PostHog, UTM capture | Server-side purchase events, de-duplicated by event ID |
+| Analytics | Meta Pixel + Meta Conversions API, GA4 or PostHog, UTM capture | Browser sends PageView only; Purchase from the paid webhook via CAPI with `event_id` = order ID |
 | WhatsApp | wa.me deep links with product context | Product-linked enquiries at launch; API campaigns later |
 | Hosting | Vercel (app) + Supabase Cloud (data) | Low ops; accounts owned by Xarina |
 | Tooling | pnpm, ESLint, Prettier, Zod, Vitest, Playwright | Typed validation and tests on checkout and drop timing |
@@ -215,8 +215,8 @@ Payment webhooks are the single source of truth for sales; every other system re
 | Paystack | NGN card, bank transfer, USSD | Initialise transaction server-side, verify via webhook (HMAC SHA512 signature) |
 | GBP / USD processor | International cards | Flutterwave or Paystack international, same PaymentProvider interface; decided before Phase 3 |
 | Resend | Transactional and drop email | React Email templates; per-email consent check before any drop alert |
-| Meta Pixel + Conversions API | Ad optimisation | Browser Purchase and server CAPI event share one event_id (the order ID) so Meta de-duplicates; fired only from the paid webhook |
-| GA4 or PostHog | Site analytics, funnels | Page views, add-to-cart, begin-checkout, purchase |
+| Meta Pixel + Conversions API | Ad optimisation | Browser sends PageView only; the paid webhook sends Purchase via Conversions API with `event_id` = order ID. No Purchase event is sent from the browser |
+| GA4 or PostHog | Site analytics, funnels | Browser pageview, add-to-cart and begin-checkout; purchase from the paid webhook (PostHog) |
 | UTM capture | Attribution | First-touch UTMs stored in a cookie, copied onto waitlist entries and orders |
 | Mux | Product video | Upload from admin, playback ID stored on product_media |
 | WhatsApp | Pre-purchase help | `wa.me/<number>?text=` with product name, link and variant |
@@ -285,7 +285,7 @@ Build in six phases, each ending with something testable; give Claude Code one p
 3. **Currency and checkout** — currency switcher, fixed/FX pricing, shipping zones, cart, stock reservations, payment adapter with Paystack first, paid-webhook order flow, confirmation email (CUR, PAY, INV-1–3).
 4. **Drops, waitlists and Privé** — drop editor, server-time countdown, state-driven Buy button, waitlist capture and emails, VIP approval, magic-link and access-link entry, pg_cron launch jobs (DROP, WL, VIP).
 5. **Operations** — orders board, dispatch emails, customer database with search/export, audit log, info pages editor, reporting page (INV-4/5, CRM, ADM-5–7, INFO).
-6. **Tracking and launch** — Meta Pixel + CAPI with de-duplication, analytics, UTM capture, load test of a simulated drop, staff training, handover of all accounts to Xarina.
+6. **Tracking and launch** — Meta Pixel browser PageView plus paid-webhook Purchase via CAPI (`event_id` = order ID), PostHog analytics, UTM capture, load test of a simulated drop, staff training, handover of all accounts to Xarina.
 
 ### Decisions needed from Xarina before Phase 3
 
