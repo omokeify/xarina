@@ -290,7 +290,7 @@ Build in six phases, each ending with something testable; give Claude Code one p
 ### Decisions needed from Xarina before Phase 3
 
 - [ ] Drop model: ready stock, preorder or both (preorders need production and dispatch dates on the product).
-- [ ] Privé rules: who qualifies, how many hours early, per-member limits, reserved public stock.
+- [x] Privé rules (confirmed 2026-11-22): manual approval; 48 h early access (per-drop override); 1 per design per drop; no reserved public stock; membership permanent until revoked. See `docs/membership-model.md`.
 - [ ] Currency approach: fixed prices or FX-based; which currencies are settled into which bank accounts.
 - [ ] Payment provider(s) for GBP and USD, confirmed against business registration and payout needs.
 - [ ] Launch countries, shipping charges and how international duties are handled.

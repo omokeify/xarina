@@ -16,6 +16,7 @@ const ACTIONS: Record<string, string> = {
   "vip.approve": "Approved Privé member",
   "vip.revoke": "Removed Privé access",
   "vip.link": "Sent Privé access link",
+  "vip.link_revoke": "Revoked Privé access link",
   "staff.add": "Added staff member",
   "staff.update": "Changed staff member",
   "customers.export": "Exported customers",

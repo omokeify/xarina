@@ -50,10 +50,29 @@ export const priveMemberList = z.array(
     id: z.string().uuid(),
     email: z.string(),
     name: z.string().nullable(),
+    phone: z.string().nullable(),
     is_vip: z.boolean(),
     vip_approved_at: z.string().nullable(),
+    vip_approved_by: z.string().uuid().nullable(),
+    approved_by_name: z.string().nullable(),
     requested_at: z.string().nullable(),
     drop_alert_consent: z.boolean(),
+  }),
+);
+
+/** Access links issued to members, with the joined drop and staff names. */
+export const priveAccessLinkList = z.array(
+  z.object({
+    id: z.string().uuid(),
+    customer_id: z.string().uuid(),
+    drop_id: z.string().uuid().nullable(),
+    drop: z.object({ name: z.string() }).nullable(),
+    created_at: z.string(),
+    expires_at: z.string(),
+    used_at: z.string().nullable(),
+    revoked_at: z.string().nullable(),
+    created_by: z.string().uuid().nullable(),
+    staff: z.object({ name: z.string() }).nullable(),
   }),
 );
 

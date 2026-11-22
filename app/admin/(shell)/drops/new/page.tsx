@@ -9,7 +9,10 @@ export default async function NewDropPage() {
   await requireStaff(["owner", "manager", "merchandiser"]);
   return (
     <div className="gap-space-5 flex max-w-3xl flex-col">
-      <Link href="/admin/drops" className="label text-ink-muted hover:text-ink inline-flex items-center gap-space-1">
+      <Link
+        href="/admin/drops"
+        className="label text-ink-muted hover:text-ink gap-space-1 inline-flex items-center"
+      >
         ← Back to Drops
       </Link>
       <header className="gap-space-2 flex flex-col">
@@ -19,7 +22,7 @@ export default async function NewDropPage() {
           Configure release windows, Privé early access, and inventory allocation strategy.
         </p>
       </header>
-      <div className="border border-line bg-surface-raised p-space-4">
+      <div className="border-line bg-surface-raised p-space-4 border">
         <DropForm
           drop={{
             id: null,
@@ -31,7 +34,8 @@ export default async function NewDropPage() {
             vip_opens_at: null,
             public_opens_at: null,
             closes_at: null,
-            vip_limit_per_member: null,
+            // Confirmed Privé rule: 1 per design per drop unless staff override it.
+            vip_limit_per_member: 1,
             on_close: "move_to_available",
             published: false,
           }}

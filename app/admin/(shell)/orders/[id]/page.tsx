@@ -57,7 +57,9 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         .order("created_at", { ascending: false })
     : { data: [] };
 
-  const [history, paymentEvents, drop] = await Promise.all([
+  const canSeeCustomer = staff.role === "owner" || staff.role === "manager" || staff.role === "support";
+
+  const [history, paymentEvents, drop, membership] = await Promise.all([
     canSeeHistory
       ? supabase
           .from("audit_log")
@@ -75,6 +77,15 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       : Promise.resolve({ data: [] }),
     order.drop_id
       ? supabase.from("drops").select("name, slug").eq("id", order.drop_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    canSeeCustomer && order.customer_id
+      ? supabase
+          .from("customers")
+          .select(
+            "id, name, email, is_vip, created_at, vip_approved_at, vip_approved_by, prive_requested_at, staff:vip_approved_by(name)",
+          )
+          .eq("id", order.customer_id)
+          .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
 
@@ -103,7 +114,6 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const addressLines = ["name", "line1", "line2", "city", "region", "postcode", "country"]
     .map((k) => (typeof address[k] === "string" ? (address[k] as string) : ""))
     .filter(Boolean);
-  const canSeeCustomer = staff.role === "owner" || staff.role === "manager" || staff.role === "support";
 
   return (
     <div className="max-w-4xl space-y-8">
@@ -227,6 +237,53 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
       </Section>
+
+      {membership.data && (
+        <Section id="membership" title="Membership">
+          <dl className="text-body text-body-s grid gap-3 sm:grid-cols-[12rem_1fr]">
+            <dt className="label text-ink-muted">Membership Tier</dt>
+            <dd className="text-ink">
+              {membership.data.is_vip ? "Privé Member" : "Standard Client"}
+              {order.channel === "vip" && (
+                <span className="label text-accent ml-2">This order used Privé access</span>
+              )}
+            </dd>
+            <dt className="label text-ink-muted">Client Since</dt>
+            <dd className="text-ink">{when.format(new Date(membership.data.created_at))}</dd>
+            {membership.data.vip_approved_at && (
+              <>
+                <dt className="label text-ink-muted">Privé Approved</dt>
+                <dd className="text-ink">
+                  {when.format(new Date(membership.data.vip_approved_at))}
+                  {membership.data.staff?.name ? ` · by ${membership.data.staff.name}` : ""}
+                </dd>
+              </>
+            )}
+            {membership.data.prive_requested_at && (
+              <>
+                <dt className="label text-ink-muted">Access Requested</dt>
+                <dd className="text-ink">{when.format(new Date(membership.data.prive_requested_at))}</dd>
+              </>
+            )}
+            {!membership.data.is_vip && !membership.data.prive_requested_at && (
+              <>
+                <dt className="label text-ink-muted">Privé</dt>
+                <dd className="text-ink-muted">No access request on record</dd>
+              </>
+            )}
+          </dl>
+          {canSeeHistory && (
+            <div className="pt-2">
+              <Link
+                href="/admin/drops/prive"
+                className="label text-accent hover:text-ink underline underline-offset-4"
+              >
+                Manage Privé membership →
+              </Link>
+            </div>
+          )}
+        </Section>
+      )}
 
       <Section title="Source &amp; Attribution">
         <dl className="text-body text-body-s grid gap-3 sm:grid-cols-[12rem_1fr]">

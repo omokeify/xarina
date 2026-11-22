@@ -37,23 +37,23 @@ test("a Privé request creates a customer record staff can find by phone", async
   await signInStaff(page, "owner@xarina.test");
   // Phone search ignores spaces and the country code punctuation.
   await page.goto(`/admin/customers?q=809${tail}`);
-  await expect(page.getByText("1 customer", { exact: true })).toBeVisible();
+  await expect(page.getByText("1 Client Record", { exact: true })).toBeVisible();
   await page.getByRole("link", { name: /CRM Person/ }).click();
 
   await expect(page.getByRole("heading", { name: "CRM Person", level: 1 })).toBeVisible();
   await expect(page.getByText(email).first()).toBeVisible();
-  await expect(page.getByText("Not a member")).toBeVisible();
+  await expect(page.getByText("Standard Client")).toBeVisible();
   // Rule 12: neither consent was ticked, so neither shows as given.
   await expect(
     page.getByRole("region", { name: "Consent" }).getByText("Not given", { exact: true }),
   ).toHaveCount(2);
-  await expect(page.getByText("No paid orders.")).toBeVisible();
+  await expect(page.getByText("No settled orders.")).toBeVisible();
 });
 
 test("the owner exports a CSV, and the list says interest, not sales", async ({ page }) => {
   await signInStaff(page, "owner@xarina.test");
   await page.goto("/admin/customers");
-  await expect(page.getByText(/Interest means waitlist sign-ups/)).toBeVisible();
+  await expect(page.getByText(/Interest indicates waitlist enrollments/)).toBeVisible();
 
   const res = await page.request.get(`/admin/customers/export?q=${encodeURIComponent(email)}`);
   expect(res.status()).toBe(200);
@@ -68,7 +68,7 @@ test("support can read customers but has no export", async ({ page }) => {
   await signInStaff(page, "support@xarina.test");
   await page.goto("/admin/customers");
   await expect(page.getByRole("heading", { name: "Customers", level: 1 })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Export CSV" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Export Client CSV" })).toHaveCount(0);
   const res = await page.request.get("/admin/customers/export");
   expect(res.status()).toBe(404);
 });

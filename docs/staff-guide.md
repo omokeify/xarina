@@ -117,8 +117,8 @@ Drafts are visible to staff only. A new design starts as a draft.
 - [ ] Fill **Name** and **Web address** (`xarina.com/drops/[slug]`). The address follows the name until you edit it; an edited drop slug keeps redirecting from the old one.
 - [ ] Add a short **Pitch**.
 - [ ] Optional **Hero image**: JPG, PNG, WebP or AVIF up to 8 MB, plus **Describe the image** if you upload one. Tick **Remove this image** to clear it.
-- [ ] Set **Privé opens**, **Public opens** and optional **Closes**. You type local date/time; the hidden field stores UTC. Privé cannot open after public; closing must be after public opening.
-- [ ] Optional **Privé limit per member, per design** — a whole number of at least 1.
+- [ ] Set **Privé opens**, **Public opens** and optional **Closes**. You type local date/time; the hidden field stores UTC. Privé cannot open after public; closing must be after public opening. House standard: Privé opens **48 hours** before Public (override per drop when a launch needs it).
+- [ ] **Privé limit per member, per design** defaults to **1**. Change it only if a drop needs a different whole number (at least 1), or clear it for no limit.
 - [ ] Choose **When the drop closes**: _Move designs to Available Now_ or _Hide designs_.
 - [ ] Owner/Manager only: tick **Published**. Unpublished drops are staff-only. The header shows the current state (Upcoming, Privé open, Public, Closed) from server time.
 - [ ] **Create drop** or **Save drop**.
@@ -144,11 +144,12 @@ Reserved public quantity is set on the product variant, not in the drop editor.
 
 **Who:** Owner/Manager only, from **Drops → Privé members**.
 
-- [ ] **Approve by email:** paste one or more emails separated by newlines, commas or semicolons, then **Approve members**. The reply says how many new members were approved.
-- [ ] **Requests** are customers who asked for access and are not yet members. Use **Approve** on a row to approve one person.
-- [ ] **Members** can be **Revoke**d. This ends their Privé access; it does not delete the customer.
-- [ ] To give a member a link, use **Drop** (_Any drop_ or an open drop), **Expires (days)** (1–30, default 3) and **Create link**.
-- [ ] **Copy the link immediately.** It is shown once; only a hash is stored. It is single-use and expires. There is no shared password and no screen listing or revoking individual links — revoke the member instead.
+- [ ] **Approve by email:** paste one or more emails separated by newlines, commas or semicolons, then **Approve members**. The reply says how many new members were approved. New members get a welcome email; if email is not configured the approval still succeeds.
+- [ ] **Requests** are customers who asked for access and are not yet members. The row shows their phone number when they gave one. Use **Approve Member** on a row to approve one person.
+- [ ] **Members** can be **Revoke**d. The row shows who approved them and when. Revoking ends their Privé access; it does not delete the customer.
+- [ ] To give a member a link, use **Drop** (_Any drop_ or an open drop), **Valid (days)** (1–30, default 3) and **Generate Access Link**.
+- [ ] **Copy the link immediately.** It is shown once; only a hash is stored. It is single-use and expires. There is no shared password.
+- [ ] **Access link history** on each member lists every link issued to them, who issued it, its expiry and whether it is Active, Used, Expired or Revoked. Use **Revoke link** to cancel an unused link without revoking the member. A session already created from a link is not affected.
 
 ---
 
@@ -168,6 +169,7 @@ Reserved public quantity is set on the product variant, not in the drop editor.
 - [ ] **Order Progress** is a timeline of Placed → Payment confirmed → Processing → Dispatched → Delivered (or Cancelled/Refunded). Dates come from the payment confirmation and status changes; an en dash means that step hasn't happened.
 - [ ] **Source & Attribution** shows the sales channel, the linked drop (or "Available now") and the first-touch campaign values recorded at checkout, when present.
 - [ ] Owner/Manager/Support can open **View client profile** beside the customer email to check VIP status, other orders and consents.
+- [ ] **Membership** (Owner/Manager/Support) shows the client's tier, when they joined, when and by whom they were approved, and when they requested access. Owner/Manager also get a link to the Privé roster.
 - [ ] **Payment Events** (Owner/Manager only) lists every webhook for the payment reference, including rejected deliveries and signature validity. **View raw payload** shows the stored event for debugging.
 - [ ] **Order Activity** (Owner/Manager only) lists status changes with the staff member who made them and UTC time. Fulfilment and Support do not see these two sections.
 
@@ -284,6 +286,5 @@ These are gaps between the PRD and the UI as it exists today. Work around them o
 - Info pages are **plain text**, not rich text.
 - No admin UI for **Meta/Pixel/CAPI or analytics keys**; Phase 6 tracking keys are still pending.
 - No admin UI for **payment provider keys or GBP/USD provider choice**.
-- No list or per-link revocation for **Privé access links**; only the member can be revoked.
 - The **Orders** board shows the latest 100 orders with status/search filters; there is no date-range report there. Use **Reports** for totals.
 - **Audit log** shows the latest 300 entries. **Customers** shows 50 per page.

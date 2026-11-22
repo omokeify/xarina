@@ -21,7 +21,10 @@ const db = () =>
     auth: { persistSession: false },
   });
 
-async function paidOrder(): Promise<{ id: string; number: string }> {
+async function paidOrder(options?: {
+  email?: string;
+  priveCustomerId?: string;
+}): Promise<{ id: string; number: string }> {
   const admin = db();
   const { data: variant } = await admin
     .from("variants")
@@ -45,11 +48,11 @@ async function paidOrder(): Promise<{ id: string; number: string }> {
   const { data: id, error } = await admin.rpc("create_checkout", {
     p_items: [{ variant_id: variant!.id, qty: 1 }],
     p_currency: "NGN",
-    p_email: `orders-${Date.now()}@admin.test`,
+    p_email: options?.email ?? `orders-${Date.now()}@admin.test`,
     p_phone: "+2348000000000",
     p_address: { name: "Ada Obi", line1: "1 Test Road", city: "Lagos", country: "NG" },
     p_shipping_rate_id: rate!.id,
-    p_prive_customer_id: null,
+    p_prive_customer_id: options?.priveCustomerId ?? null,
     p_utm: null,
   });
   expect(error).toBeNull();
@@ -174,6 +177,38 @@ test("owner sees attribution, payment history and order activity; fulfilment doe
   await expect(page.getByRole("heading", { name: "Payment Events" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Order Activity" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Order Progress" })).toBeVisible();
+});
+
+test("the order record shows the client's Privé membership", async ({ page }) => {
+  const admin = db();
+  const email = `order-vip-${Date.now()}@admin.test`;
+  const { data: customer, error: customerError } = await admin
+    .from("customers")
+    .insert({ email, name: "Order VIP" })
+    .select("id")
+    .single();
+  expect(customerError).toBeNull();
+  const { data: owner } = await admin.from("staff").select("id").eq("email", "owner@xarina.test").single();
+  await admin
+    .from("customers")
+    .update({
+      is_vip: true,
+      vip_approved_at: new Date().toISOString(),
+      vip_approved_by: owner!.id,
+      prive_requested_at: new Date(Date.now() - 86_400_000).toISOString(),
+    })
+    .eq("id", customer!.id);
+
+  const order = await paidOrder({ email, priveCustomerId: customer!.id });
+  await signIn(page, "owner@xarina.test");
+  await page.goto(`/admin/orders/${order.id}`);
+
+  const membership = page.getByRole("region", { name: "Membership" });
+  await expect(membership).toBeVisible();
+  await expect(membership.getByText("Privé Member", { exact: true })).toBeVisible();
+  await expect(membership.getByText(/by Olu Owner/)).toBeVisible();
+  await expect(membership.getByText("Access Requested")).toBeVisible();
+  await expect(membership.getByRole("link", { name: /Manage Privé membership/ })).toBeVisible();
 });
 
 test("settings are owner-only, and the owner can add and remove a shipping zone", async ({ page }) => {

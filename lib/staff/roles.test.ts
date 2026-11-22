@@ -22,13 +22,21 @@ describe("admin sections per role (PRD › Users and roles)", () => {
 
 describe("fine-grained permissions", () => {
   it("only owner and manager can export customers (CRM-3)", () => {
-    expect(["owner", "manager", "merchandiser", "fulfilment", "support"].filter((r) => can.exportCustomers(r as never))).toEqual([
-      "owner",
-      "manager",
-    ]);
+    expect(
+      ["owner", "manager", "merchandiser", "fulfilment", "support"].filter((r) =>
+        can.exportCustomers(r as never),
+      ),
+    ).toEqual(["owner", "manager"]);
   });
   it("merchandiser cannot change prices or publish", () => {
     expect(can.changePrices("merchandiser")).toBe(false);
     expect(can.publish("merchandiser")).toBe(false);
+  });
+  it("only owner and manager can approve Privé members (VIP-1)", () => {
+    expect(
+      ["owner", "manager", "merchandiser", "fulfilment", "support"].filter((r) =>
+        can.approvePrive(r as never),
+      ),
+    ).toEqual(["owner", "manager"]);
   });
 });

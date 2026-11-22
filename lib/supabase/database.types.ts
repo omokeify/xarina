@@ -559,14 +559,14 @@ isOneToOne: false
                   ]
                 },"vip_access_links": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"customer_id": string,"drop_id": string | null,"expires_at": string,"id": string,"token_hash": string,"used_at": string | null
+                    "created_at": string,"created_by": string | null,"customer_id": string,"drop_id": string | null,"expires_at": string,"id": string,"revoked_at": string | null,"token_hash": string,"used_at": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"customer_id": string,"drop_id"?: string | null,"expires_at": string,"id"?: string,"token_hash": string,"used_at"?: string | null
+                    "created_at"?: string,"created_by"?: string | null,"customer_id": string,"drop_id"?: string | null,"expires_at": string,"id"?: string,"revoked_at"?: string | null,"token_hash": string,"used_at"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"customer_id"?: string,"drop_id"?: string | null,"expires_at"?: string,"id"?: string,"token_hash"?: string,"used_at"?: string | null
+                    "created_at"?: string,"created_by"?: string | null,"customer_id"?: string,"drop_id"?: string | null,"expires_at"?: string,"id"?: string,"revoked_at"?: string | null,"token_hash"?: string,"used_at"?: string | null
                   }
                   Relationships: [
                     {
@@ -669,6 +669,9 @@ isOneToOne: false
                            },
 "admin_report":
 { Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
+"admin_revoke_access_link":
+{ Args: { "p_link_id": string }; Returns: boolean
                            },
 "admin_save_drop":
 { Args: { "p_data": Json,"p_id"?: string }; Returns: string

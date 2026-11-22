@@ -3,9 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import PriveWelcome from "@/emails/prive-welcome";
 import { IMAGE_TYPES, MAX_IMAGE_BYTES } from "@/lib/admin/products";
 import { dropSchema } from "@/lib/drops/schema";
+import { sendEmail } from "@/lib/email/client";
+import { getEmailSite } from "@/lib/email/site";
 import { publicEnv } from "@/lib/env";
+import { earlyAccessHours } from "@/lib/prive/early-access";
 import { hashToken, newToken } from "@/lib/prive/tokens";
 import { can } from "@/lib/staff/roles";
 import { requireStaff } from "@/lib/staff/session";
@@ -35,6 +39,40 @@ function explain(error: PgError): string {
       return error.message ?? "That change isn't allowed.";
     default:
       return "Couldn't save. Try again.";
+  }
+}
+
+/**
+ * Welcome a newly approved member. Best-effort: membership is already saved by
+ * the time this runs, so an email failure is logged but never reported as a
+ * failed approval (the same pattern as dispatch emails).
+ */
+async function welcomeNewMembers(recipients: { email: string; name: string | null }[]): Promise<void> {
+  if (recipients.length === 0) return;
+  const supabase = await createClient();
+  const { data: drops } = await supabase
+    .from("drops")
+    .select("vip_opens_at, public_opens_at")
+    .gt("public_opens_at", new Date().toISOString());
+  const hours = earlyAccessHours(drops ?? [], process.env.PRIVE_EARLY_ACCESS_HOURS);
+  const site = getEmailSite();
+  const signInUrl = `${publicEnv.NEXT_PUBLIC_SITE_URL}/prive`;
+
+  for (const recipient of recipients) {
+    const result = await sendEmail({
+      to: recipient.email,
+      subject: "Welcome to Xarina Privé",
+      react: PriveWelcome({
+        site,
+        firstName: recipient.name ?? undefined,
+        earlyAccessHours: hours,
+        email: recipient.email,
+        signInUrl,
+      }),
+    });
+    if (result.status === "failed") {
+      console.error(`[prive] welcome email failed for ${recipient.email}: ${result.error}`);
+    }
   }
 }
 
@@ -170,8 +208,23 @@ export async function approvePriveEmails(_: PriveState, formData: FormData): Pro
   if (!valid.success) return { status: "error", message: valid.error.issues[0].message };
 
   const supabase = await createClient();
+  // Snapshot who was already a member so re-pasting a list never re-welcomes them.
+  const { data: existing } = await supabase
+    .from("customers")
+    .select("email")
+    .in("email", valid.data)
+    .eq("is_vip", true);
+  const already = new Set((existing ?? []).map((c) => c.email));
+
   const { data, error } = await supabase.rpc("admin_approve_vip_emails", { p_emails: valid.data });
   if (error) return { status: "error", message: explain(error) };
+
+  const { data: nowMembers } = await supabase
+    .from("customers")
+    .select("email, name")
+    .in("email", valid.data)
+    .eq("is_vip", true);
+  await welcomeNewMembers((nowMembers ?? []).filter((c) => !already.has(c.email)));
 
   revalidatePath("/admin/drops/prive");
   return { status: "done", message: `${data} new member${data === 1 ? "" : "s"} approved.` };
@@ -182,7 +235,26 @@ export async function setPriveMembership(customerId: string, approve: boolean): 
   const staff = await requireStaff(ADMINS);
   if (!can.approvePrive(staff.role)) return;
   const supabase = await createClient();
-  await supabase.rpc("admin_set_vip", { p_customer_ids: [customerId], p_is_vip: approve });
+  const { data: before } = await supabase
+    .from("customers")
+    .select("email, name, is_vip")
+    .eq("id", customerId)
+    .maybeSingle();
+  const { error } = await supabase.rpc("admin_set_vip", { p_customer_ids: [customerId], p_is_vip: approve });
+  if (!error && approve && before && !before.is_vip) {
+    await welcomeNewMembers([{ email: before.email, name: before.name }]);
+  }
+  revalidatePath("/admin/drops/prive");
+}
+
+/** Revoke one unused access link. Revoking the member remains the wider action. */
+export async function revokeAccessLink(linkId: string): Promise<void> {
+  const staff = await requireStaff(ADMINS);
+  if (!can.approvePrive(staff.role)) return;
+  if (!z.string().uuid().safeParse(linkId).success) return;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_revoke_access_link", { p_link_id: linkId });
+  if (error) console.error(`[prive] could not revoke access link ${linkId}: ${error.message}`);
   revalidatePath("/admin/drops/prive");
 }
 
@@ -218,6 +290,8 @@ export async function createAccessLink(
   });
   if (error) return { status: "error", message: explain(error) };
 
+  // Refresh the roster so the new link appears immediately in its history.
+  revalidatePath("/admin/drops/prive");
   return {
     status: "done",
     message: `Single-use link, expires ${new Date(expires).toUTCString()}. Copy it now: it cannot be shown again.`,

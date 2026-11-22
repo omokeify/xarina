@@ -110,7 +110,7 @@ test("a personal access link works once", async ({ page, browser }) => {
     .getByRole("button", { name: "Approve" })
     .click();
   const memberRow = page.getByRole("listitem").filter({ hasText: linkMember });
-  await memberRow.getByRole("button", { name: "Create link" }).click();
+  await memberRow.getByRole("button", { name: "Generate Access Link" }).click();
   const shown = await memberRow.getByLabel("Access link").inputValue();
   expect(shown).toMatch(/\/access\/[A-Za-z0-9_-]{43}$/);
   // The link uses NEXT_PUBLIC_SITE_URL; follow its path on the server under test.
@@ -128,6 +128,40 @@ test("a personal access link works once", async ({ page, browser }) => {
   await second.goto(link);
   await second.getByRole("button", { name: "Enter Privé" }).click();
   await expect(second).toHaveURL(/\/access\/invalid$/);
+});
+
+test("staff see request details and can revoke a single access link", async ({ page, browser }) => {
+  const email = `revoke-${stamp}@p4.test`;
+  await page.goto("/prive");
+  await page.getByRole("tab", { name: "Request access" }).click();
+  await page.locator("#req-name").fill("Revoke Member");
+  await page.locator("#req-email").fill(email);
+  await page.locator("#req-phone").fill("+234 809 123 4567");
+  await page.getByRole("button", { name: "Request access" }).click();
+  await expect(page.getByRole("tabpanel").getByRole("status")).toContainText("Thank you");
+
+  await signInStaff(page, "owner@xarina.test");
+  await page.goto("/admin/drops/prive");
+  const requestRow = page.getByRole("listitem").filter({ hasText: email });
+  await expect(requestRow.getByText("+234 809 123 4567")).toBeVisible();
+  await requestRow.getByRole("button", { name: "Approve Member" }).click();
+
+  const row = page.getByRole("listitem").filter({ hasText: email });
+  await row.getByRole("button", { name: "Generate Access Link" }).waitFor();
+  await expect(row.getByText(/by Olu Owner/)).toBeVisible();
+  await row.getByRole("button", { name: "Generate Access Link" }).click();
+  const shown = await row.getByLabel("Access link").inputValue();
+
+  await row.getByText(/Access link history/).click();
+  await expect(row.getByText("Active", { exact: true })).toBeVisible();
+  await row.getByRole("button", { name: "Revoke link" }).click();
+  await expect(row.getByText("Revoked", { exact: true })).toBeVisible();
+
+  // The revoked link is still a valid URL, but the token can no longer be spent.
+  const visitor = await (await browser.newContext()).newPage();
+  await visitor.goto(new URL(shown).pathname);
+  await visitor.getByRole("button", { name: "Enter Privé" }).click();
+  await expect(visitor).toHaveURL(/\/access\/invalid$/);
 });
 
 test("staff create a drop with an automatic web address and a hero image", async ({ page }) => {
