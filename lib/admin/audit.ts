@@ -11,6 +11,8 @@ const ACTIONS: Record<string, string> = {
   "drop.create": "Created drop",
   "drop.update": "Changed drop",
   "drop.products": "Changed drop products",
+  "drop.delete": "Deleted drop",
+  "order.status": "Changed order status",
   "vip.approve": "Approved Privé member",
   "vip.revoke": "Removed Privé access",
   "vip.link": "Sent Privé access link",

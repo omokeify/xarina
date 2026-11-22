@@ -4,6 +4,7 @@ import { Lock, ShieldCheck } from "lucide-react";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
+import { identify } from "@/lib/analytics/client";
 import { placeOrderAction, type PlaceOrderState } from "@/lib/checkout/actions";
 import { formatMoney, type Currency } from "@/lib/money";
 import { ProductImage } from "./product-image";
@@ -95,7 +96,16 @@ export function CheckoutForm({
 
   return (
     <div className="gap-space-6 lg:gap-space-5 grid grid-cols-1 items-start lg:grid-cols-12">
-      <form action={action} className="space-y-space-6 lg:col-span-7">
+      <form
+        action={action}
+        onSubmit={(event) => {
+          const email = new FormData(event.currentTarget).get("email");
+          if (typeof email === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+            identify(email.trim().toLowerCase());
+          }
+        }}
+        className="space-y-space-6 lg:col-span-7"
+      >
         <section className="space-y-space-3">
           <SectionTitle>01. Contact &amp; delivery address</SectionTitle>
           <div className="gap-space-3 grid grid-cols-1 sm:grid-cols-2">

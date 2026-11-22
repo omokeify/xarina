@@ -34,20 +34,22 @@ function Message({ state }: { state: PriveState }) {
 export function BulkApproveForm() {
   const [state, action, pending] = useActionState(approvePriveEmails, idle);
   return (
-    <form action={action} className="gap-space-3 grid max-w-xl">
-      <div className="space-y-space-1">
-        <Label htmlFor="emails">Approve by email</Label>
+    <form action={action} className="flex flex-col gap-4 max-w-2xl">
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="emails" className="label text-ink-muted">
+          Customer Emails
+        </Label>
         <textarea
           id="emails"
           name="emails"
-          rows={4}
-          placeholder="One email per line, or separated by commas"
-          className="border-line bg-surface-raised px-space-3 py-space-2 text-body text-ink w-full rounded-xs border"
+          rows={3}
+          placeholder="One email per line, or separated by commas (e.g. client@domain.com, vip@domain.com)"
+          className="border border-line bg-surface p-3 text-body-s text-ink focus:border-ink focus:outline-none transition-colors w-full"
         />
       </div>
       <Message state={state} />
-      <Button type="submit" disabled={pending} className="justify-self-start">
-        {pending ? "Approving" : "Approve members"}
+      <Button type="submit" disabled={pending} className="self-start h-11 px-5">
+        {pending ? "Approving…" : "Approve Members"}
       </Button>
     </form>
   );
@@ -63,17 +65,19 @@ export function AccessLinkForm({
 }) {
   const [state, action, pending] = useActionState(createAccessLink.bind(null, customerId), idle);
   return (
-    <form action={action} className="gap-space-2 grid">
-      <div className="gap-space-2 flex flex-wrap items-end">
-        <div className="space-y-space-1">
-          <Label htmlFor={`drop-${customerId}`}>Drop</Label>
+    <form action={action} className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="flex flex-col gap-1">
+          <Label htmlFor={`drop-${customerId}`} className="label text-ink-muted">
+            Target Drop
+          </Label>
           <select
             id={`drop-${customerId}`}
             name="dropId"
             defaultValue=""
-            className="border-line bg-surface-raised px-space-3 text-body-s text-ink h-11 rounded-xs border"
+            className="border border-line bg-surface px-3 text-body-s text-ink h-9 focus:border-ink focus:outline-none transition-colors"
           >
-            <option value="">Any drop</option>
+            <option value="">Any active drop</option>
             {drops.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.name}
@@ -81,8 +85,10 @@ export function AccessLinkForm({
             ))}
           </select>
         </div>
-        <div className="space-y-space-1">
-          <Label htmlFor={`days-${customerId}`}>Expires (days)</Label>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor={`days-${customerId}`} className="label text-ink-muted">
+            Valid (Days)
+          </Label>
           <Input
             id={`days-${customerId}`}
             name="days"
@@ -90,11 +96,11 @@ export function AccessLinkForm({
             min={1}
             max={30}
             defaultValue={3}
-            className="h-11 w-24"
+            className="h-9 w-20 text-body-s bg-surface"
           />
         </div>
-        <Button type="submit" size="sm" variant="secondary" disabled={pending}>
-          {pending ? "Creating" : "Create link"}
+        <Button type="submit" size="sm" variant="secondary" disabled={pending} className="h-9 px-3">
+          {pending ? "Creating…" : "Generate Access Link"}
         </Button>
       </div>
       <Message state={state} />

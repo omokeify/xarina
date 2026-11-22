@@ -9,8 +9,9 @@ import { Field, FormStatus } from "../_components/form-parts";
 
 const initial: ActionState = { status: "idle" };
 const textarea =
-  "min-h-28 w-full rounded-xs border border-line bg-surface-raised p-space-3 text-body text-ink";
-const select = "h-12 w-full rounded-xs border border-line bg-surface-raised px-space-3 text-body";
+  "min-h-28 w-full rounded-none border border-line bg-surface p-space-3 text-body-s text-ink focus:border-ink focus:outline-none transition-colors";
+const select =
+  "h-11 w-full rounded-none border border-line bg-surface px-space-3 text-body-s text-ink focus:border-ink focus:outline-none transition-colors";
 
 export function DetailsForm({
   product,

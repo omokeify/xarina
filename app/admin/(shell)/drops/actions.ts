@@ -133,6 +133,29 @@ export async function saveDropProducts(
   return { status: "saved", message: "Designs saved." };
 }
 
+/** ADM-4: permanently delete a drop. Owner only; the DB RPC enforces it too. */
+export async function deleteDrop(id: string, _: DropFormState, formData: FormData): Promise<DropFormState> {
+  const staff = await requireStaff(EDITORS);
+  if (staff.role !== "owner") return { status: "error", message: "Only an owner can delete a drop." };
+  if (!z.string().uuid().safeParse(id).success) return { status: "error", message: "Unknown drop" };
+
+  const supabase = await createClient();
+  const { data: drop } = await supabase.from("drops").select("id, name").eq("id", id).maybeSingle();
+  if (!drop) return { status: "error", message: "That drop is already gone" };
+  if (String(formData.get("confirm") ?? "").trim() !== drop.name) {
+    return { status: "error", message: `Type the drop name exactly (${drop.name}) to confirm` };
+  }
+
+  const { error } = await supabase.rpc("admin_delete_drop", { p_id: id });
+  if (error) return { status: "error", message: explain(error) };
+
+  revalidatePath("/admin/drops");
+  revalidatePath("/drops", "layout");
+  revalidatePath("/shop");
+  revalidatePath("/");
+  redirect("/admin/drops?deleted=1");
+}
+
 /** VIP-1: bulk approve from a pasted list of emails. */
 export async function approvePriveEmails(_: PriveState, formData: FormData): Promise<PriveState> {
   const staff = await requireStaff(ADMINS);

@@ -81,11 +81,11 @@ export function MeasurementsEditor({
             <caption className="sr-only">Size chart in centimetres</caption>
             <thead>
               <tr className="border-line border-b">
-                <th scope="col" className="label py-space-2 pr-space-2 text-ink-muted">
+                <th scope="col" className="label py-2.5 pr-2 text-ink-muted">
                   Size
                 </th>
                 {FIELDS.map(([, label]) => (
-                  <th key={label} scope="col" className="label py-space-2 pr-space-2 text-ink-muted">
+                  <th key={label} scope="col" className="label py-2.5 pr-2 text-ink-muted">
                     {label} (cm)
                   </th>
                 ))}

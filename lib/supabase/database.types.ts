@@ -644,6 +644,9 @@ isOneToOne: false
 "admin_customers_export":
 { Args: { "p_product_id"?: string,"p_purchased"?: boolean,"p_search"?: string,"p_vip"?: boolean }; Returns: Json
                            },
+"admin_delete_drop":
+{ Args: { "p_id": string }; Returns: undefined
+                           },
 "admin_drop":
 { Args: { "p_id": string }; Returns: Json
                            },

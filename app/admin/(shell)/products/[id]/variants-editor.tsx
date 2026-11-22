@@ -130,29 +130,29 @@ export function VariantsEditor({
               <caption className="sr-only">Variants</caption>
               <thead>
                 <tr className="border-line border-b">
-                  <th scope="col" className="label py-space-2 pr-space-2 text-ink-muted">
+                  <th scope="col" className="label py-2.5 pr-2 text-ink-muted">
                     Colour
                   </th>
-                  <th scope="col" className="label py-space-2 pr-space-2 text-ink-muted">
+                  <th scope="col" className="label py-2.5 pr-2 text-ink-muted">
                     Swatch
                   </th>
-                  <th scope="col" className="label py-space-2 pr-space-2 text-ink-muted">
+                  <th scope="col" className="label py-2.5 pr-2 text-ink-muted">
                     Size
                   </th>
-                  <th scope="col" className="label py-space-2 pr-space-2 text-ink-muted">
+                  <th scope="col" className="label py-2.5 pr-2 text-ink-muted">
                     SKU
                   </th>
                   {canStock && (
-                    <th scope="col" className="label py-space-2 pr-space-2 text-ink-muted">
+                    <th scope="col" className="label py-2.5 pr-2 text-ink-muted">
                       Stock
                     </th>
                   )}
                   {canStock && (
-                    <th scope="col" className="label py-space-2 pr-space-2 text-ink-muted">
+                    <th scope="col" className="label py-2.5 pr-2 text-ink-muted">
                       Reserved for public
                     </th>
                   )}
-                  <th scope="col" className="py-space-2">
+                  <th scope="col" className="py-2.5">
                     <span className="sr-only">Remove</span>
                   </th>
                 </tr>

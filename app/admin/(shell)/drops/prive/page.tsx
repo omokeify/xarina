@@ -30,40 +30,55 @@ export default async function PriveMembersPage() {
     .map(({ id, name }) => ({ id, name }));
 
   return (
-    <div className="gap-space-6 flex flex-col">
-      <header className="gap-space-2 flex flex-col">
-        <Link href="/admin/drops" className="label text-ink-muted hover:text-ink">
-          Drops
+    <div className="space-y-8 max-w-4xl">
+      <header className="flex flex-col gap-1">
+        <Link href="/admin/drops" className="label text-ink-muted hover:text-ink inline-flex items-center gap-1.5 mb-1">
+          ← Back to Drops
         </Link>
-        <h1 className="font-display text-display-m">Privé members</h1>
+        <p className="label text-accent">VIP Client Services</p>
+        <h1 className="font-display text-display-m text-ink">Privé Member Roster</h1>
         <p className="text-body-s text-ink-muted">
-          Approved members can shop during a drop&apos;s Privé window. Access is by verified email or a
-          personal single-use link, never a shared password.
+          Approved members access drop allocations during the early Privé window via verified magic link or private access token.
         </p>
       </header>
 
-      <BulkApproveForm />
+      <section className="border border-line bg-surface-raised p-6 sm:p-8 flex flex-col gap-4">
+        <div className="border-b border-line pb-3">
+          <h2 className="font-display text-title text-ink">
+            Bulk Member Approval
+          </h2>
+          <p className="text-body-s text-ink-muted">
+            Paste member emails to approve them in one action.
+          </p>
+        </div>
+        <BulkApproveForm />
+      </section>
 
-      <section aria-labelledby="requests" className="gap-space-3 flex flex-col">
-        <h2 id="requests" className="font-display text-title">
-          Requests ({requests.length})
-        </h2>
+      <section aria-labelledby="requests" className="border border-line bg-surface-raised p-6 sm:p-8 flex flex-col gap-4">
+        <div className="flex items-center justify-between border-b border-line pb-3">
+          <h2 id="requests" className="font-display text-title text-ink">
+            Pending Membership Requests
+          </h2>
+          <span className="label bg-surface-sunk text-ink px-2 py-0.5 border border-line">
+            {requests.length} Pending
+          </span>
+        </div>
         {requests.length === 0 ? (
-          <p className="text-body-s text-ink-muted">No pending requests.</p>
+          <p className="text-body-s text-ink-muted py-4">No pending membership requests.</p>
         ) : (
-          <ul className="divide-line border-line divide-y border-y">
+          <ul className="divide-line divide-y border-y border-line">
             {requests.map((m) => (
-              <li key={m.id} className="gap-space-3 py-space-3 flex flex-wrap items-center justify-between">
+              <li key={m.id} className="py-4 flex flex-wrap items-center justify-between gap-4">
                 <span className="flex flex-col">
-                  <span className="text-body">{m.name ?? m.email}</span>
-                  <span className="text-body-s text-ink-muted">
+                  <span className="text-body font-medium text-ink">{m.name ?? m.email}</span>
+                  <span className="text-caption text-ink-muted">
                     {m.name ? `${m.email} · ` : ""}
                     {m.requested_at ? `Requested ${day.format(new Date(m.requested_at))}` : ""}
                   </span>
                 </span>
                 <form action={setPriveMembership.bind(null, m.id, true)}>
-                  <Button type="submit" size="sm">
-                    Approve
+                  <Button type="submit" size="sm" className="h-9 px-4">
+                    Approve Member
                   </Button>
                 </form>
               </li>
@@ -72,32 +87,39 @@ export default async function PriveMembersPage() {
         )}
       </section>
 
-      <section aria-labelledby="members" className="gap-space-3 flex flex-col">
-        <h2 id="members" className="font-display text-title">
-          Members ({approved.length})
-        </h2>
+      <section aria-labelledby="members" className="border border-line bg-surface-raised p-6 sm:p-8 flex flex-col gap-4">
+        <div className="flex items-center justify-between border-b border-line pb-3">
+          <h2 id="members" className="font-display text-title text-ink">
+            Approved Privé Members
+          </h2>
+          <span className="label bg-surface-sunk text-ink px-2 py-0.5 border border-line">
+            {approved.length} Active
+          </span>
+        </div>
         {approved.length === 0 ? (
-          <p className="text-body-s text-ink-muted">No members yet.</p>
+          <p className="text-body-s text-ink-muted py-4">No approved members yet.</p>
         ) : (
-          <ul className="divide-line border-line divide-y border-y">
+          <ul className="divide-line divide-y border-y border-line">
             {approved.map((m) => (
-              <li key={m.id} className="gap-space-3 py-space-3 grid">
-                <div className="gap-space-3 flex flex-wrap items-center justify-between">
+              <li key={m.id} className="py-4 flex flex-col gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="flex flex-col">
-                    <span className="text-body">{m.name ?? m.email}</span>
-                    <span className="text-body-s text-ink-muted">
+                    <span className="text-body font-medium text-ink">{m.name ?? m.email}</span>
+                    <span className="text-caption text-ink-muted">
                       {m.name ? `${m.email} · ` : ""}
                       {m.vip_approved_at ? `Approved ${day.format(new Date(m.vip_approved_at))}` : ""}
-                      {m.drop_alert_consent ? " · Drop alerts on" : ""}
+                      {m.drop_alert_consent ? " · Drop alerts active" : ""}
                     </span>
                   </span>
                   <form action={setPriveMembership.bind(null, m.id, false)}>
-                    <Button type="submit" size="sm" variant="ghost">
+                    <Button type="submit" size="sm" variant="ghost" className="text-critical">
                       Revoke
                     </Button>
                   </form>
                 </div>
-                <AccessLinkForm customerId={m.id} drops={openDrops} />
+                <div className="bg-surface p-3 border border-line">
+                  <AccessLinkForm customerId={m.id} drops={openDrops} />
+                </div>
               </li>
             ))}
           </ul>

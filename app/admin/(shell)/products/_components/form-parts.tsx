@@ -7,19 +7,24 @@ export function Section({
   description,
   children,
   id,
+  className,
 }: {
   title: string;
   description?: string;
   children: React.ReactNode;
   id?: string;
+  className?: string;
 }) {
   return (
-    <section aria-labelledby={id} className="gap-space-4 border-line pt-space-4 flex flex-col border-t">
-      <div className="gap-space-1 flex flex-col">
-        <h2 id={id} className="font-display text-title">
+    <section
+      aria-labelledby={id}
+      className={`border border-line bg-surface-raised p-space-4 flex flex-col gap-space-3 ${className ?? ""}`}
+    >
+      <div className="flex flex-col gap-space-1 border-b border-line pb-space-3">
+        <h2 id={id} className="font-display text-title text-ink font-normal">
           {title}
         </h2>
-        {description && <p className="text-body-s text-ink-muted">{description}</p>}
+        {description && <p className="text-body-s text-ink-muted leading-relaxed">{description}</p>}
       </div>
       {children}
     </section>
@@ -38,7 +43,7 @@ export function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div className="gap-space-2 flex flex-col">
+    <div className="flex flex-col gap-space-1">
       <label htmlFor={htmlFor} className="label text-ink-muted block">
         {label}
       </label>
@@ -66,4 +71,4 @@ export function FormStatus({ state, savedText = "Saved." }: { state: ActionState
 
 /** Compact text input for table cells (still 44px tall for touch). */
 export const cellInput =
-  "h-11 w-full min-w-0 rounded-xs border border-line bg-surface-raised px-space-2 text-body-s text-ink aria-invalid:border-critical";
+  "h-11 w-full min-w-0 border border-line bg-surface px-space-3 text-body-s text-ink focus:border-ink focus:outline-none transition-colors aria-invalid:border-critical";

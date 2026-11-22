@@ -18,28 +18,40 @@ export default async function ContentPage() {
   ]);
 
   return (
-    <div className="flex max-w-2xl flex-col gap-space-5">
-      <header className="flex flex-col gap-space-2">
-        <h1 className="font-display text-display-m">Homepage</h1>
-        <p className="text-body-s text-ink-muted">
-          The hero, announcement bar and WhatsApp number on the storefront.{" "}
-          <Link href="/admin/content/pages" className="text-ink underline underline-offset-4">
-            Edit info pages
-          </Link>{" "}
-          (about, contact, FAQs, delivery, returns, privacy, terms).
+    <div className="flex max-w-3xl flex-col gap-8">
+      <header className="flex flex-col gap-1">
+        <p className="label text-accent">
+          Hero Editorial &amp; Customer Care Copy
         </p>
+        <h1 className="font-display text-display-m">Storefront Content</h1>
+        <div className="flex flex-wrap items-center justify-between gap-4 mt-1">
+          <p className="text-body-s text-ink-muted">
+            Configure full-bleed hero media, editable announcement bar, and WhatsApp concierge styling.
+          </p>
+          <Link
+            href="/admin/content/pages"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-line bg-surface-raised label text-ink hover:border-ink transition-colors"
+          >
+            <span>Edit Maison Pages (About, FAQs, Delivery...)</span>
+            <span>→</span>
+          </Link>
+        </div>
       </header>
+
       {!canEdit && (
-        <p role="note" className="border-y border-line py-space-3 text-body-s text-ink-muted">
-          Only owners and managers can change the homepage. You can view the current settings.
-        </p>
+        <div role="note" className="border border-line bg-surface-sunk p-4 text-body-s text-ink-muted">
+          Only staff members with owner or manager roles can publish homepage modifications. You are viewing in read-only mode.
+        </div>
       )}
-      <HomepageForm
-        settings={settings}
-        drops={drops ?? []}
-        mediaUrl={settings.hero.media?.storage_path ? productMediaUrl(settings.hero.media.storage_path) : null}
-        canEdit={canEdit}
-      />
+
+      <div className="border border-line bg-surface-raised p-6 md:p-8">
+        <HomepageForm
+          settings={settings}
+          drops={drops ?? []}
+          mediaUrl={settings.hero.media?.storage_path ? productMediaUrl(settings.hero.media.storage_path) : null}
+          canEdit={canEdit}
+        />
+      </div>
     </div>
   );
 }

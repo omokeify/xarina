@@ -10,7 +10,6 @@ import {
   Check,
   Sparkles,
   MessageCircle,
-  Clock,
   ChevronLeft,
   ChevronRight,
   GripHorizontal,
@@ -89,9 +88,7 @@ const LOOKBOOK_PIECES = [
 
 export function ConceptHomepageView({
   initialDrop,
-  heroSettings,
   availableProducts,
-  isPrive,
 }: ConceptViewProps) {
   const { currency, setCurrency } = useCurrency();
   const [simulatedState, setSimulatedState] = useState<SimulatedDropState>(

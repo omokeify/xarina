@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Audit log" };
 
 // ADM-7: who changed prices, stock, drops and staff, newest first.
 const FILTERS = [
-  { value: undefined, label: "All" },
+  { value: undefined, label: "All Activity" },
   { value: "product", label: "Products" },
   { value: "variant", label: "Stock" },
   { value: "drop", label: "Drops" },
@@ -30,15 +30,18 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
   if (error) throw error;
 
   return (
-    <div className="flex flex-col gap-space-5">
-      <header className="flex flex-col gap-space-2">
-        <h1 className="font-display text-display-m">Audit log</h1>
+    <div className="flex flex-col gap-8">
+      <header className="flex flex-col gap-1">
+        <p className="label text-accent">
+          Governance &amp; Immutable Audit Trail
+        </p>
+        <h1 className="font-display text-display-m">Audit &amp; Activity Log</h1>
         <p className="text-body-s text-ink-muted">
-          Every change to prices, stock, drops, Privé access and staff, and every customer export. Latest 300 shown.
+          Tamper-evident record of all price modifications, stock reservations, drop states, Privé approvals, and CSV exports.
         </p>
       </header>
 
-      <nav aria-label="Filter the audit log" className="flex flex-wrap gap-x-space-4 border-b border-line">
+      <nav aria-label="Filter the audit log" className="flex flex-wrap gap-x-6 border-b border-line">
         {FILTERS.map((f) => {
           const active = f.value === type;
           return (
@@ -47,8 +50,8 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
               href={f.value ? `/admin/audit?type=${f.value}` : "/admin/audit"}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "label -mb-px inline-flex min-h-11 items-center border-b-2 border-transparent",
-                active ? "border-ink text-ink" : "text-ink-muted hover:text-ink",
+                "py-3 border-b-2 label transition-colors",
+                active ? "border-ink text-ink font-semibold" : "border-transparent text-ink-muted hover:text-ink",
               )}
             >
               {f.label}
@@ -58,36 +61,40 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
       </nav>
 
       {rows.length === 0 ? (
-        <p className="text-body-s text-ink-muted">Nothing recorded yet.</p>
+        <div className="border border-line bg-surface-raised p-12 text-center">
+          <p className="text-body-s text-ink-muted">No audit activity recorded yet.</p>
+        </div>
       ) : (
-        <ol className="flex flex-col">
-          {rows.map((r) => {
-            const lines = changeLines(r.before as never, r.after as never);
-            return (
-              <li key={r.id} className="grid gap-space-1 border-b border-line py-space-3 md:grid-cols-[140px_1fr_2fr] md:gap-space-4">
-                <time dateTime={r.at} className="text-body-s text-ink-muted">
-                  {when.format(new Date(r.at))}
-                </time>
-                <div className="flex flex-col">
-                  <span className="text-body-s">{actionLabel(r.action)}</span>
-                  <span className="text-caption text-ink-muted">{r.staff_name ?? "System"}</span>
-                </div>
-                <div className="flex min-w-0 flex-col gap-space-1">
-                  {r.entity_label && <span className="text-body-s">{r.entity_label}</span>}
-                  {lines.length > 0 && (
-                    <ul className="text-caption text-ink-muted">
-                      {lines.map((l) => (
-                        <li key={l} className="break-words">
-                          {l}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </li>
-            );
-          })}
-        </ol>
+        <div className="border border-line bg-surface-raised overflow-hidden">
+          <ol className="divide-y divide-line">
+            {rows.map((r) => {
+              const lines = changeLines(r.before as never, r.after as never);
+              return (
+                <li key={r.id} className="grid grid-cols-1 md:grid-cols-[160px_1fr_2fr] gap-3 md:gap-6 px-6 py-4 hover:bg-surface-sunk/30 transition-colors items-start">
+                  <time dateTime={r.at} className="text-body-s text-ink-muted font-medium tabular-nums">
+                    {when.format(new Date(r.at))}
+                  </time>
+                  <div className="flex flex-col">
+                    <span className="text-body-s font-medium text-ink">{actionLabel(r.action)}</span>
+                    <span className="text-caption text-ink-muted">Initiated by {r.staff_name ?? "System Operator"}</span>
+                  </div>
+                  <div className="flex min-w-0 flex-col gap-1">
+                    {r.entity_label && <span className="text-body-s font-normal text-ink">{r.entity_label}</span>}
+                    {lines.length > 0 && (
+                      <ul className="text-caption text-ink-muted space-y-0.5 mt-1 bg-surface-sunk/40 p-2.5 border border-line/40">
+                        {lines.map((l) => (
+                          <li key={l} className="break-words text-caption">
+                            {l}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
       )}
     </div>
   );

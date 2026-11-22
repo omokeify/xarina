@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Customers" };
 
 const day = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeZone: "UTC" });
 
-const SELECT = "border-line bg-surface-raised px-space-3 text-body text-ink h-12 w-full rounded-xs border";
+const SELECT = "border-line bg-surface px-3 py-2 text-body-s text-ink h-10 w-full border focus:outline-none cursor-pointer";
 
 export default async function CustomersPage({
   searchParams,
@@ -37,43 +37,54 @@ export default async function CustomersPage({
   const query = toQuery({ ...filters, page: 1 });
 
   return (
-    <div className="gap-space-5 flex flex-col">
-      <header className="gap-space-3 flex flex-wrap items-end justify-between">
-        <div className="gap-space-2 flex flex-col">
-          <h1 className="font-display text-display-m">Customers</h1>
+    <div className="gap-8 flex flex-col">
+      <header className="gap-3 flex flex-wrap items-end justify-between">
+        <div className="gap-1 flex flex-col">
+          <p className="label text-accent">
+            Client Relations &amp; Privé Registry
+          </p>
+          <h1 className="font-display text-display-m">Customers &amp; Privé</h1>
           <p className="text-body-s text-ink-muted">
-            Interest means waitlist sign-ups. It is not orders or sales.
+            Interest indicates waitlist enrollments for upcoming releases. It is reported separately from confirmed sales.
           </p>
         </div>
         {can.exportCustomers(staff.role) && (
           <Button asChild size="sm" variant="secondary">
-            <a href={`/admin/customers/export${query ? `?${query}` : ""}`}>Export CSV</a>
+            <a href={`/admin/customers/export${query ? `?${query}` : ""}`} className="cursor-pointer">
+              Export Client CSV
+            </a>
           </Button>
         )}
       </header>
 
-      <form method="get" className="gap-space-3 border-line p-space-3 grid border md:grid-cols-4">
-        <div className="space-y-space-1 md:col-span-4">
-          <Label htmlFor="q">Search name, email or phone</Label>
-          <Input id="q" name="q" defaultValue={filters.q} />
+      <form method="get" className="gap-4 border-line bg-surface-raised p-4 grid border md:grid-cols-4">
+        <div className="space-y-1 md:col-span-4">
+          <Label htmlFor="q" className="label text-ink-muted">
+            Search Client Name, Email, or Telephone
+          </Label>
+          <Input id="q" name="q" defaultValue={filters.q} placeholder="Search clientele records..." />
         </div>
-        <div className="space-y-space-1">
-          <Label htmlFor="prive">Privé</Label>
+        <div className="space-y-1">
+          <Label htmlFor="prive" className="label text-ink-muted">
+            Privé Status
+          </Label>
           <select
             id="prive"
             name="prive"
             defaultValue={filters.prive == null ? "" : filters.prive ? "yes" : "no"}
             className={SELECT}
           >
-            <option value="">Any</option>
-            <option value="yes">Members</option>
-            <option value="no">Not members</option>
+            <option value="">Any Tier</option>
+            <option value="yes">Privé Verified Members</option>
+            <option value="no">General Clients</option>
           </select>
         </div>
-        <div className="space-y-space-1">
-          <Label htmlFor="design">Waitlisted design</Label>
+        <div className="space-y-1">
+          <Label htmlFor="design" className="label text-ink-muted">
+            Waitlisted Design
+          </Label>
           <select id="design" name="design" defaultValue={filters.design ?? ""} className={SELECT}>
-            <option value="">Any</option>
+            <option value="">Any Design</option>
             {(products.data ?? []).map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
@@ -81,79 +92,97 @@ export default async function CustomersPage({
             ))}
           </select>
         </div>
-        <div className="space-y-space-1">
-          <Label htmlFor="purchased">Has purchased</Label>
+        <div className="space-y-1">
+          <Label htmlFor="purchased" className="label text-ink-muted">
+            Purchase History
+          </Label>
           <select
             id="purchased"
             name="purchased"
             defaultValue={filters.purchased == null ? "" : filters.purchased ? "yes" : "no"}
             className={SELECT}
           >
-            <option value="">Any</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
+            <option value="">Any History</option>
+            <option value="yes">Has Completed Purchases</option>
+            <option value="no">Zero Purchases to Date</option>
           </select>
         </div>
-        <div className="gap-space-2 flex items-end">
+        <div className="gap-2 flex items-end">
           <Button type="submit" size="sm">
-            Apply
+            Apply Filter
           </Button>
           <Button asChild size="sm" variant="ghost">
-            <Link href="/admin/customers">Clear</Link>
+            <Link href="/admin/customers">Reset</Link>
           </Button>
         </div>
       </form>
 
-      <p className="text-body-s text-ink-muted">
-        {total} {total === 1 ? "customer" : "customers"}
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="label text-ink-muted">
+          {total} {total === 1 ? "Client Record" : "Client Records"}
+        </p>
+      </div>
 
       {rows.length === 0 ? (
-        <p className="py-space-5 text-body-s text-ink-muted">No customers match.</p>
+        <div className="border border-line bg-surface-raised p-12 text-center">
+          <p className="text-body-s text-ink-muted">No client records match the selected filter parameters.</p>
+        </div>
       ) : (
-        <ul className="divide-line border-line divide-y border-y">
-          {rows.map((c) => (
-            <li key={c.id}>
-              <Link
-                href={`/admin/customers/${c.id}`}
-                className="gap-space-1 py-space-3 hover:bg-surface-sunk md:px-space-3 grid md:grid-cols-[1fr_auto] md:items-center"
-              >
-                <span className="flex flex-col">
-                  <span className="text-body">{c.name ?? c.email}</span>
-                  <span className="text-body-s text-ink-muted">
-                    {c.name ? `${c.email} · ` : ""}
-                    {c.phone ? `${c.phone} · ` : ""}
-                    Joined {day.format(new Date(c.created_at))}
-                  </span>
-                </span>
-                <span className="label text-ink-muted">
-                  {c.is_vip ? "Privé · " : ""}
-                  {c.paid_orders} paid {c.paid_orders === 1 ? "order" : "orders"} · {c.interest_count}{" "}
-                  interest
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="border border-line bg-surface-raised overflow-hidden">
+          <ul className="divide-y divide-line">
+            {rows.map((c) => (
+              <li key={c.id}>
+                <Link
+                  href={`/admin/customers/${c.id}`}
+                  className="px-6 py-4 hover:bg-surface-sunk/30 transition-colors grid md:grid-cols-[1fr_auto] gap-4 items-center"
+                >
+                  <div className="flex flex-col">
+                    <span className="text-body font-medium text-ink flex items-center gap-2">
+                      <span>{c.name ?? c.email}</span>
+                      {c.is_vip && (
+                        <span className="px-2 py-0.5 label bg-accent/20 text-accent border border-accent/30">
+                          Privé Member
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-body-s text-ink-muted mt-0.5">
+                      {c.name ? `${c.email} · ` : ""}
+                      {c.phone ? `${c.phone} · ` : ""}
+                      Registered {day.format(new Date(c.created_at))}
+                    </span>
+                  </div>
+                  <div className="text-right flex flex-col md:items-end">
+                    <span className="text-body-s tabular-nums font-medium text-ink">
+                      {c.paid_orders} {c.paid_orders === 1 ? "paid order" : "paid orders"}
+                    </span>
+                    <span className="text-caption text-ink-muted mt-0.5">
+                      {c.interest_count} waitlist {c.interest_count === 1 ? "entry" : "entries"}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {pages > 1 && (
-        <nav aria-label="Pages" className="gap-space-3 flex items-center justify-between">
+        <nav aria-label="Pagination" className="gap-3 flex items-center justify-between pt-2">
           {filters.page > 1 ? (
             <Button asChild size="sm" variant="secondary">
               <Link href={`/admin/customers?${toQuery({ ...filters, page: filters.page - 1 })}`}>
-                Previous
+                Previous Page
               </Link>
             </Button>
           ) : (
             <span />
           )}
-          <span className="text-body-s text-ink-muted">
+          <span className="label text-ink-muted">
             Page {filters.page} of {pages}
           </span>
           {filters.page < pages ? (
             <Button asChild size="sm" variant="secondary">
-              <Link href={`/admin/customers?${toQuery({ ...filters, page: filters.page + 1 })}`}>Next</Link>
+              <Link href={`/admin/customers?${toQuery({ ...filters, page: filters.page + 1 })}`}>Next Page</Link>
             </Button>
           ) : (
             <span />

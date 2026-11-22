@@ -19,34 +19,34 @@ export function DropProductsForm({ dropId, options }: { dropId: string; options:
     return <p className="text-body-s text-ink-muted">No products yet. Add a design first.</p>;
 
   return (
-    <form action={action} className="gap-space-3 grid max-w-xl">
-      <ul className="divide-line border-line divide-y border-y">
+    <form action={action} className="flex flex-col gap-4 max-w-2xl">
+      <div className="border border-line divide-line divide-y bg-surface">
         {options.map((o) => (
-          <li key={o.id}>
-            <label className="gap-space-3 py-space-2 flex min-h-11 items-center">
-              <input
-                type="checkbox"
-                name="product_id"
-                value={o.id}
-                defaultChecked={o.inDrop}
-                className="accent-action size-4 rounded-none"
-              />
-              <span className="text-body flex-1">{o.name}</span>
-              <span className="text-body-s text-ink-muted">{o.interest} interest</span>
-            </label>
-          </li>
+          <label key={o.id} className="flex items-center gap-3 p-3.5 hover:bg-surface-sunk/40 transition-colors cursor-pointer select-none">
+            <input
+              type="checkbox"
+              name="product_id"
+              value={o.id}
+              defaultChecked={o.inDrop}
+              className="accent-ink size-4"
+            />
+            <span className="text-body font-medium flex-1 text-ink">{o.name}</span>
+            <span className="label text-ink-muted bg-surface-sunk px-2 py-0.5 border border-line">
+              {o.interest} waitlist
+            </span>
+          </label>
         ))}
-      </ul>
+      </div>
       {state.message && (
         <p
           role={state.status === "error" ? "alert" : "status"}
-          className={state.status === "error" ? "text-body-s text-critical" : "text-body-s text-ink"}
+          className={state.status === "error" ? "text-body-s text-critical font-medium" : "text-body-s text-ink"}
         >
           {state.message}
         </p>
       )}
-      <Button type="submit" disabled={pending} className="justify-self-start">
-        {pending ? "Saving" : "Save designs"}
+      <Button type="submit" disabled={pending} className="self-start h-11 px-6">
+        {pending ? "Saving…" : "Save Drop Designs"}
       </Button>
     </form>
   );

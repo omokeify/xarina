@@ -17,11 +17,11 @@ import {
 const idle: SettingsState = { status: "idle" };
 
 const selectClass =
-  "h-12 w-full rounded-xs border border-line bg-surface-raised px-space-3 text-body text-ink";
+  "h-11 w-full rounded-none border border-line bg-surface px-space-3 text-body-s text-ink focus:border-ink focus:outline-none transition-colors";
 
 function Labelled({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="gap-space-1 flex min-w-0 flex-col">
+    <label className="flex min-w-0 flex-col gap-space-1">
       <span className="label text-ink-muted">{label}</span>
       {children}
     </label>
@@ -55,7 +55,7 @@ function RowActions({
   deleteWhat?: string;
 }) {
   return (
-    <div className="gap-space-3 flex flex-wrap items-center">
+    <div className="flex flex-wrap items-center gap-space-2 pt-space-1">
       <Button type="submit" size="sm" disabled={pending}>
         {pending ? "Saving…" : saveLabel}
       </Button>
@@ -69,6 +69,7 @@ function RowActions({
           onClick={(e) => {
             if (!window.confirm(`Delete this ${deleteWhat}?`)) e.preventDefault();
           }}
+          className="text-critical hover:text-critical hover:bg-critical/10"
         >
           Delete
         </Button>
@@ -76,7 +77,7 @@ function RowActions({
       <p
         role="status"
         aria-live="polite"
-        className={state.status === "error" ? "text-body-s text-critical" : "text-body-s text-ink-muted"}
+        className={state.status === "error" ? "text-body-s text-critical font-medium" : "text-body-s text-ink-muted"}
       >
         {state.status === "idle" ? "" : state.message}
       </p>

@@ -17,25 +17,28 @@ export default async function EditInfoPage({ params }: { params: Promise<{ slug:
   if (!page) notFound();
 
   return (
-    <div className="flex max-w-2xl flex-col gap-space-5">
-      <Link href="/admin/content/pages" className="label text-ink-muted hover:text-ink">
-        Back to info pages
+    <div className="gap-space-5 flex max-w-3xl flex-col">
+      <Link href="/admin/content/pages" className="label text-ink-muted hover:text-ink inline-flex items-center gap-space-1">
+        ← Back to Info Pages
       </Link>
-      <header className="flex flex-col gap-space-2">
-        <h1 className="font-display text-display-m">{page.title}</h1>
+      <header className="gap-space-2 flex flex-col">
+        <p className="label text-accent">Page Editor</p>
+        <h1 className="font-display text-display-m text-ink">{page.title}</h1>
         <p className="text-body-s text-ink-muted">
           Shown at /{page.slug}
           {page.published && (
             <>
               {" · "}
               <Link href={`/${page.slug}`} className="underline underline-offset-4 hover:text-ink">
-                View page
+                View live page
               </Link>
             </>
           )}
         </p>
       </header>
-      <PageForm page={page} />
+      <div className="border border-line bg-surface-raised p-space-4">
+        <PageForm page={page} />
+      </div>
     </div>
   );
 }

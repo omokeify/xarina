@@ -13,10 +13,12 @@ const when = (iso: string | null) => (iso ? day.format(new Date(iso)) : "");
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
-    <section aria-labelledby={id} className="gap-space-3 flex flex-col">
-      <h2 id={id} className="font-display text-title">
-        {title}
-      </h2>
+    <section aria-labelledby={id} className="border border-line bg-surface-raised p-6 sm:p-8 flex flex-col gap-4">
+      <div className="border-b border-line pb-3">
+        <h2 id={id} className="font-display text-xl text-ink font-normal">
+          {title}
+        </h2>
+      </div>
       {children}
     </section>
   );
@@ -24,9 +26,9 @@ function Section({ id, title, children }: { id: string; title: string; children:
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="gap-space-1 py-space-2 border-line grid border-b md:grid-cols-[200px_1fr]">
+    <div className="py-2.5 border-line grid border-b sm:grid-cols-[200px_1fr] items-center text-body-s">
       <dt className="label text-ink-muted">{label}</dt>
-      <dd className="text-body">{children}</dd>
+      <dd className="text-body-s text-ink">{children}</dd>
     </div>
   );
 }
@@ -47,84 +49,100 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     c.given ? `Given on ${when(c.at)}${c.source ? ` (${c.source})` : ""}` : "Not given";
 
   return (
-    <div className="gap-space-6 flex flex-col">
-      <header className="gap-space-2 flex flex-col">
-        <Link href="/admin/customers" className="label text-ink-muted hover:text-ink">
-          Customers
-        </Link>
-        <h1 className="font-display text-display-m">{customer.name ?? customer.email}</h1>
+    <div className="space-y-8 max-w-4xl">
+      <Link href="/admin/customers" className="label text-ink-muted hover:text-ink inline-flex items-center gap-1.5">
+        ← Back to Customers
+      </Link>
+
+      <header className="flex flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="font-display text-display-m text-ink">{customer.name ?? customer.email}</h1>
+          <span
+            className={`label px-2 py-0.5 border ${
+              customer.is_vip
+                ? "border-accent/40 bg-accent/10 text-ink"
+                : "border-line bg-surface-sunk text-ink-muted"
+            }`}
+          >
+            {customer.is_vip ? "Privé VIP" : "Standard Client"}
+          </span>
+        </div>
         {customer.name && <p className="text-body-s text-ink-muted">{customer.email}</p>}
       </header>
 
-      <Section id="details" title="Details">
-        <dl>
-          <Row label="Email">{customer.email}</Row>
-          <Row label="Phone">{customer.phone ?? "Not given"}</Row>
-          <Row label="Country">{customer.country ?? "Not given"}</Row>
-          <Row label="Customer since">{when(customer.created_at)}</Row>
+      <Section id="details" title="Client Profile">
+        <dl className="divide-line">
+          <Row label="Email Address">{customer.email}</Row>
+          <Row label="Telephone">{customer.phone ?? "Not given"}</Row>
+          <Row label="Country Residence">{customer.country ?? "Not given"}</Row>
+          <Row label="Member Since">{when(customer.created_at)}</Row>
         </dl>
       </Section>
 
-      <Section id="prive" title="Privé">
-        <dl>
-          <Row label="Status">{customer.is_vip ? "Member" : "Not a member"}</Row>
-          {customer.vip_approved_at && <Row label="Approved">{when(customer.vip_approved_at)}</Row>}
+      <Section id="prive" title="Privé Salon Allocation">
+        <dl className="divide-line">
+          <Row label="Membership Tier">{customer.is_vip ? "Privé Member" : "Standard"}</Row>
+          {customer.vip_approved_at && <Row label="VIP Approved Date">{when(customer.vip_approved_at)}</Row>}
           {customer.prive_requested_at && !customer.is_vip && (
-            <Row label="Requested">{when(customer.prive_requested_at)}</Row>
+            <Row label="Access Requested">{when(customer.prive_requested_at)}</Row>
           )}
         </dl>
-        <Link
-          href="/admin/drops/prive"
-          className="text-body-s text-ink-muted hover:text-ink underline underline-offset-4"
-        >
-          Manage Privé members
-        </Link>
+        <div className="pt-2">
+          <Link
+            href="/admin/drops/prive"
+            className="label text-accent hover:text-ink underline underline-offset-4"
+          >
+            Manage Privé membership roster →
+          </Link>
+        </div>
       </Section>
 
-      <Section id="consent" title="Consent">
-        <dl>
-          <Row label="Drop alerts">
+      <Section id="consent" title="Consents &amp; Notifications">
+        <dl className="divide-line">
+          <Row label="Drop Alerts">
             {consentText(consents.drop_alerts)}
             {customer.all_drops_alerts && " · every drop"}
           </Row>
-          <Row label="Marketing emails">{consentText(consents.marketing)}</Row>
+          <Row label="Private Lookbook / Marketing">{consentText(consents.marketing)}</Row>
         </dl>
       </Section>
 
-      <Section id="orders" title={`Paid orders (${orders.length})`}>
+      <Section id="orders" title={`Settled Orders (${orders.length})`}>
         {orders.length === 0 ? (
-          <p className="text-body-s text-ink-muted">No paid orders.</p>
+          <p className="text-body-s text-ink-muted py-2">No settled orders.</p>
         ) : (
           <ul className="divide-line border-line divide-y border-y">
             {orders.map((o) => (
-              <li key={o.id} className="gap-space-2 py-space-3 flex flex-wrap items-center justify-between">
-                <span className="flex flex-col">
-                  <span className="text-body">{o.number}</span>
-                  <span className="text-body-s text-ink-muted">
+              <li key={o.id} className="py-3 flex flex-wrap items-center justify-between gap-3">
+                <span className="flex flex-col gap-0.5">
+                  <span className="text-body font-medium text-ink">Order {o.number}</span>
+                  <span className="text-caption text-ink-muted">
                     Paid {when(o.paid_at)} · {o.channel === "vip" ? "Privé" : "Public"} ·{" "}
                     {o.status.replace(/_/g, " ")}
                   </span>
                 </span>
-                <span className="text-body tabular-nums">{formatMoney(o.total_minor, o.currency)}</span>
+                <span className="text-body tabular-nums text-ink">{formatMoney(o.total_minor, o.currency)}</span>
               </li>
             ))}
           </ul>
         )}
       </Section>
 
-      <Section id="interest" title={`Waitlist interest (${waitlist.length})`}>
-        <p className="text-body-s text-ink-muted">Designs this customer asked to hear about. Not orders.</p>
+      <Section id="interest" title={`Waitlist Engagement (${waitlist.length})`}>
+        <p className="text-body-s text-ink-muted leading-relaxed">
+          Designs and silhouettes this client registered early interest for.
+        </p>
         {waitlist.length === 0 ? (
-          <p className="text-body-s text-ink-muted">None.</p>
+          <p className="text-body-s text-ink-muted py-2">No waitlist entries.</p>
         ) : (
-          <ul className="divide-line border-line divide-y border-y">
+          <ul className="divide-line border-line divide-y border-y mt-2">
             {waitlist.map((w) => (
               <li
                 key={w.product_id}
-                className="gap-space-2 py-space-3 flex flex-wrap items-center justify-between"
+                className="py-3 flex flex-wrap items-center justify-between gap-3"
               >
-                <span className="text-body">{w.name}</span>
-                <span className="text-body-s text-ink-muted">
+                <span className="text-body font-medium text-ink">{w.name}</span>
+                <span className="text-caption text-ink-muted">
                   {[w.colour, w.size].filter(Boolean).join(", ")}
                   {w.colour || w.size ? " · " : ""}Joined {when(w.joined_at)}
                 </span>

@@ -21,6 +21,7 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   { href: "/admin/customers", label: "Customers", roles: ["owner", "manager", "support"] },
   { href: "/admin/content", label: "Content", roles: ["owner", "manager", "merchandiser"] },
   { href: "/admin/reports", label: "Reports", roles: ["owner", "manager"] },
+  { href: "/admin/analytics", label: "Analytics", roles: ["owner", "manager"] },
   { href: "/admin/audit", label: "Audit log", roles: ["owner", "manager"] }, // ADM-7
   { href: "/admin/staff", label: "Staff", roles: ["owner"] },
   { href: "/admin/settings", label: "Settings", roles: ["owner"] },

@@ -22,3 +22,13 @@ export function track(event: AnalyticsEvent, properties?: Record<string, unknown
   if (!ready) return;
   posthog.capture(event, properties);
 }
+
+/**
+ * Tie the anonymous storefront session to the email used at checkout. The
+ * server reports Purchase with the same distinct ID (the verified order's
+ * email), so without this the funnel would show no purchases.
+ */
+export function identify(email: string): void {
+  if (!ready || !email) return;
+  posthog.identify(email);
+}

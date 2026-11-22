@@ -4,24 +4,34 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-export function AdminNav({ sections }: { sections: { href: string; label: string }[] }) {
+export function AdminNav({
+  sections,
+  onNavigate,
+}: {
+  sections: { href: string; label: string }[];
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Admin" className="overflow-x-auto">
-      <ul className="flex md:flex-col">
+    <nav aria-label="Admin navigation" className="w-full">
+      <ul className="flex flex-col gap-1">
         {sections.map(({ href, label }) => {
           const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
           return (
             <li key={href}>
               <Link
                 href={href}
+                onClick={onNavigate}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "label flex min-h-11 items-center px-space-3 whitespace-nowrap text-ink-muted hover:text-ink",
-                  active && "text-ink underline decoration-accent decoration-2 underline-offset-8",
+                  "label py-3 px-3.5 border-l-2 flex items-center justify-between transition-colors",
+                  active
+                    ? "border-accent bg-surface-sunk/60 text-ink"
+                    : "border-transparent text-ink-muted hover:text-ink hover:bg-surface-sunk/30",
                 )}
               >
-                {label}
+                <span>{label}</span>
+                {active && <span className="size-1.5 rounded-full bg-accent" />}
               </Link>
             </li>
           );

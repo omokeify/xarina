@@ -16,26 +16,37 @@ export default async function StaffPage() {
   const staff = (data ?? []).filter((s) => isStaffRole(s.role));
 
   return (
-    <div className="flex max-w-3xl flex-col gap-space-5">
-      <header className="flex flex-col gap-space-2">
-        <h1 className="font-display text-display-m">Staff</h1>
+    <div className="gap-space-5 flex max-w-4xl flex-col">
+      <header className="gap-space-2 flex flex-col">
+        <p className="label text-accent">Access Control &amp; RBAC</p>
+        <h1 className="font-display text-display-m text-ink">Staff Accounts</h1>
         <p className="text-body-s text-ink-muted">
-          Everyone signs in with their own email by magic link. No shared logins. Changes are recorded in the audit log.
+          Staff authenticate with personal magic links. No shared logins. Changes are recorded in the audit log.
         </p>
       </header>
 
-      <section aria-labelledby="add-heading" className="flex flex-col gap-space-3 border-t border-line pt-space-4">
-        <h2 id="add-heading" className="font-display text-title">
-          Add someone
-        </h2>
+      <section aria-labelledby="add-heading" className="border border-line bg-surface-raised p-space-4 flex flex-col gap-space-3">
+        <div className="flex flex-col gap-space-1 border-b border-line pb-space-3">
+          <h2 id="add-heading" className="font-display text-title text-ink">
+            Grant Access
+          </h2>
+          <p className="text-body-s text-ink-muted">
+            Invite a new team member and set their operational role.
+          </p>
+        </div>
         <AddStaffForm />
       </section>
 
-      <section aria-labelledby="team-heading" className="flex flex-col gap-space-2 border-t border-line pt-space-4">
-        <h2 id="team-heading" className="font-display text-title">
-          Team
-        </h2>
-        <ul className="flex flex-col">
+      <section aria-labelledby="team-heading" className="border border-line bg-surface-raised p-space-4 flex flex-col gap-space-3">
+        <div className="flex flex-col gap-space-1 border-b border-line pb-space-3">
+          <h2 id="team-heading" className="font-display text-title text-ink">
+            Active Staff Directory ({staff.length})
+          </h2>
+          <p className="text-body-s text-ink-muted">
+            Deactivating a staff account immediately revokes access across the operations console.
+          </p>
+        </div>
+        <ul className="divide-line divide-y border-y border-line">
           {staff.map((s) => (
             <StaffRow key={s.id} member={s as never} isMe={s.id === me.id} />
           ))}

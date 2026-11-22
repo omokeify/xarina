@@ -19,18 +19,19 @@ export default async function SettingsPage() {
   ]);
 
   return (
-    <div className="gap-space-5 flex max-w-4xl flex-col">
+    <div className="gap-space-5 flex max-w-5xl flex-col">
       <header className="gap-space-2 flex flex-col">
-        <h1 className="font-display text-display-m">Settings</h1>
+        <p className="label text-accent">Store Configuration</p>
+        <h1 className="font-display text-display-m text-ink">Settings &amp; Global Rates</h1>
         <p className="text-body-s text-ink-muted">
-          Changes apply to new checkouts straight away. Every change is recorded in the audit log.
+          Changes apply to new checkouts immediately. Every change is recorded in the audit log.
         </p>
       </header>
 
       <Section
         id="fx"
-        title="Exchange rates"
-        description="Used for designs set to convert from a base price. The rate is how much of the second currency one unit of the first buys. Rounding tidies the converted price, for example to the nearest £5."
+        title="Exchange Rates &amp; Auto FX Rules"
+        description="Used for designs set to convert from a base price. The rate is how much of the quote currency one unit of the base currency buys. Rounding tidies the converted price, for example to the nearest £5 or $5."
       >
         <div className="divide-line border-line divide-y border-y">
           {(rates ?? []).map((r) => (
@@ -46,19 +47,21 @@ export default async function SettingsPage() {
             />
           ))}
         </div>
-        <h3 className="label text-ink-muted">Add a rate</h3>
-        <FxRateForm />
+        <div className="pt-space-2">
+          <h3 className="label text-ink-muted mb-space-2">Add Currency Pair</h3>
+          <FxRateForm />
+        </div>
       </Section>
 
       <Section
         id="shipping"
-        title="Shipping zones and charges"
+        title="Shipping Zones &amp; Delivery Charges"
         description="A zone is a set of countries with its own delivery charges. A zone with no countries covers the rest of the world. Shoppers only see the charges for their currency."
       >
         {(zones ?? []).map((zone) => (
-          <div key={zone.id} className="gap-space-2 border-line p-space-3 flex flex-col border">
+          <div key={zone.id} className="border border-line bg-surface p-space-3 flex flex-col gap-space-3">
             <ZoneForm zone={{ id: zone.id, name: zone.name, countries: zone.countries }} />
-            <div className="divide-line border-line pl-space-3 divide-y border-t">
+            <div className="divide-line border-line divide-y border-t pt-space-2">
               {[...zone.shipping_rates]
                 .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name))
                 .filter((r) => isCurrency(r.currency))
@@ -76,15 +79,19 @@ export default async function SettingsPage() {
                     }}
                   />
                 ))}
-              <div className="pt-space-2">
-                <h3 className="label text-ink-muted">Add a delivery charge to {zone.name}</h3>
+              <div className="pt-space-3">
+                <h3 className="label text-ink-muted mb-space-2">
+                  Add Delivery Charge to {zone.name}
+                </h3>
                 <ShippingRateForm zoneId={zone.id} />
               </div>
             </div>
           </div>
         ))}
-        <h3 className="label text-ink-muted">Add a zone</h3>
-        <ZoneForm />
+        <div className="border border-dashed border-line p-space-3">
+          <h3 className="label text-ink-muted mb-space-2">Add New Shipping Zone</h3>
+          <ZoneForm />
+        </div>
       </Section>
     </div>
   );

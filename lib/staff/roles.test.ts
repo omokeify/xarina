@@ -5,7 +5,9 @@ const hrefs = (role: Parameters<typeof sectionsFor>[0]) => sectionsFor(role).map
 
 describe("admin sections per role (PRD › Users and roles)", () => {
   it("owner sees everything including staff and settings", () => {
-    expect(hrefs("owner")).toEqual(expect.arrayContaining(["/admin/staff", "/admin/settings", "/admin/reports"]));
+    expect(hrefs("owner")).toEqual(
+      expect.arrayContaining(["/admin/staff", "/admin/settings", "/admin/reports", "/admin/analytics"]),
+    );
   });
   it("merchandiser gets products, drops and content but not orders or customers", () => {
     expect(hrefs("merchandiser")).toEqual(["/admin", "/admin/products", "/admin/drops", "/admin/content"]);

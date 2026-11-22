@@ -34,23 +34,38 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   const p = product.product;
 
   return (
-    <div className="gap-space-5 flex max-w-4xl flex-col">
-      <Link href="/admin/products" className="label text-ink-muted hover:text-ink">
-        Back to products
+    <div className="space-y-8 max-w-4xl">
+      <Link href="/admin/products" className="label text-ink-muted hover:text-ink inline-flex items-center gap-1.5">
+        ← Back to Catalogue
       </Link>
-      <header className="gap-space-2 flex flex-col">
-        <h1 className="font-display text-display-m">{p.name}</h1>
+      <header className="flex flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="font-display text-display-m text-ink">{p.name}</h1>
+          <span
+            className={`label px-2 py-0.5 border ${
+              p.status === "published"
+                ? "border-action bg-action text-on-action"
+                : "border-line bg-surface-sunk text-ink-muted"
+            }`}
+          >
+            {p.status === "published" ? "Published" : "Draft"}
+          </span>
+          {product.drops.length > 0 && (
+            <span className="label px-2 py-0.5 border border-accent/40 bg-accent/10 text-ink">
+              In Drop: {product.drops.map((d) => d.name).join(", ")}
+            </span>
+          )}
+        </div>
         <p className="text-body-s text-ink-muted">
-          {p.status === "published" ? "Published" : "Draft"}
+          Web slug: /p/{p.slug}
           {p.status === "published" && (
             <>
               {" · "}
-              <Link href={`/p/${p.slug}`} className="hover:text-ink underline underline-offset-4">
-                View in shop
+              <Link href={`/p/${p.slug}`} className="hover:text-ink underline underline-offset-4 text-accent">
+                View in storefront
               </Link>
             </>
           )}
-          {product.drops.length > 0 && <> · In drop: {product.drops.map((d) => d.name).join(", ")}</>}
         </p>
       </header>
 

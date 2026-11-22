@@ -26,7 +26,7 @@ Notes:
 | Role             | Can                                                                                                                                                                      | Cannot                                                                                                                                                           |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Owner**        | Everything in admin: staff, settings, products, prices, stock, publishing, drops, Privé approvals, orders, customers, exports, content, reports, audit                   | Demote or deactivate themselves; remove the last active owner                                                                                                    |
-| **Manager**      | Products, prices, stock, publishing, drops, Privé approvals, orders and status changes, customers and CSV exports, homepage and info pages, reports, ad spend, audit log | Staff and Settings; cannot remove their own access from Staff                                                                                                    |
+| **Manager**      | Products, prices, stock, publishing, drops, Privé approvals, orders and status changes, customers and CSV exports, homepage and info pages, reports, ad spend, audit log | Staff, Settings and deleting drops; cannot remove their own access from Staff                                                                                    |
 | **Merchandiser** | Draft products, copy, media, size charts, non-stock variant fields, draft drops and drop designs, info pages; can view homepage settings                                 | Prices, stock, publishing, deleting products, publishing drops, Privé, orders, customers, exports, reports, audit, staff, settings or changing homepage settings |
 | **Fulfilment**   | View orders, move orders through shipping statuses, add courier and tracking                                                                                             | View or add order notes; view customers; export; change prices or catalogue; cancel or refund orders                                                             |
 | **Support**      | View orders, see and add order notes, view and filter customers                                                                                                          | Change order status; export customers; edit catalogue, drops, reports, staff or settings                                                                         |
@@ -125,6 +125,13 @@ Drafts are visible to staff only. A new design starts as a draft.
 
 The drop list shows times in UTC, `/drops/[slug]`, state, design count and **interest** count. Interest is waitlist sign-ups, not orders.
 
+### Delete a drop — Owner only
+
+- [ ] Open the drop → **Delete drop** at the bottom of the editor.
+- [ ] Read the warning: the drop, its designs, waitlist interest, notifications, access links and old addresses are removed. The designs stay in Products.
+- [ ] Type the drop name exactly, then **Delete drop**. The button only enables on an exact match.
+- [ ] A drop with orders cannot be deleted; unpublish it instead so past sales keep their drop attribution in Reports. The deletion is recorded in the audit log.
+
 ### Add designs to a drop
 
 - [ ] Open the drop → **Designs**.
@@ -154,6 +161,15 @@ Reserved public quantity is set on the product variant, not in the drop editor.
 - [ ] **Orders** → filter by **Status** and/or search **Order number or email** → **Filter**.
 - [ ] The board is newest first and shows the order number, customer, UTC date, total in order currency, channel (Privé where relevant) and status.
 - [ ] Open a row for pieces, quantities, price snapshot, contact, delivery address, provider reference and courier/tracking.
+- [ ] The header shows the piece/unit count and when the order was last updated.
+
+### Read the full order record
+
+- [ ] **Order Progress** is a timeline of Placed → Payment confirmed → Processing → Dispatched → Delivered (or Cancelled/Refunded). Dates come from the payment confirmation and status changes; an en dash means that step hasn't happened.
+- [ ] **Source & Attribution** shows the sales channel, the linked drop (or "Available now") and the first-touch campaign values recorded at checkout, when present.
+- [ ] Owner/Manager/Support can open **View client profile** beside the customer email to check VIP status, other orders and consents.
+- [ ] **Payment Events** (Owner/Manager only) lists every webhook for the payment reference, including rejected deliveries and signature validity. **View raw payload** shows the stored event for debugging.
+- [ ] **Order Activity** (Owner/Manager only) lists status changes with the staff member who made them and UTC time. Fulfilment and Support do not see these two sections.
 
 Statuses: **Pending payment, Paid, Processing, Dispatched, Delivered, Cancelled, Refunded**. Pending payment is not a sale. Paid is set by the verified webhook, never by staff.
 
@@ -264,7 +280,6 @@ Roles: Owner, Manager, Merchandiser, Fulfilment, Support — see the table above
 These are gaps between the PRD and the UI as it exists today. Work around them or ask an owner; do not assume a hidden control exists.
 
 - No **drop-state preview** in the drop editor. The list and drop header show the current state only.
-- No **delete drop** control in the drop editor. Unpublishing makes a drop staff-only; do not rely on being able to remove it.
 - No admin screen to **create collections**. Products can only choose from existing collections.
 - Info pages are **plain text**, not rich text.
 - No admin UI for **Meta/Pixel/CAPI or analytics keys**; Phase 6 tracking keys are still pending.

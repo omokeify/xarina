@@ -127,6 +127,55 @@ test("support can read an order and add a note, but cannot change its status", a
   await expect(page.getByText("Customer asked about delivery times.")).toBeVisible();
 });
 
+test("owner sees attribution, payment history and order activity; fulfilment does not", async ({ page }) => {
+  const order = await paidOrder();
+  await db()
+    .from("orders")
+    .update({ utm: { utm_source: "meta", utm_campaign: "drop_1" } })
+    .eq("id", order.id);
+  await db()
+    .from("audit_log")
+    .insert([
+      {
+        action: "order.status",
+        entity_type: "order",
+        entity_id: order.id,
+        before: { status: "paid" },
+        after: { status: "processing" },
+      },
+      {
+        action: "order.status",
+        entity_type: "order",
+        entity_id: order.id,
+        before: { status: "processing" },
+        after: { status: "dispatched", courier: "DHL", tracking_number: "JD0146000123" },
+      },
+    ]);
+
+  await signIn(page, "owner@xarina.test");
+  await page.goto(`/admin/orders/${order.id}`);
+  for (const heading of ["Order Progress", "Source & Attribution", "Payment Events", "Order Activity"]) {
+    await expect(page.getByRole("heading", { name: heading })).toBeVisible();
+  }
+  await expect(page.getByText(/1 piece · 1 unit/)).toBeVisible();
+  await expect(page.getByText("meta", { exact: true })).toBeVisible();
+  await expect(page.getByText("drop_1", { exact: true })).toBeVisible();
+  await expect(page.getByText("View raw payload")).toBeVisible();
+  const steps = await page.locator("ol > li").allTextContents();
+  expect(steps).toHaveLength(5);
+  expect(steps[1]).toContain("Payment confirmed");
+  expect(steps[3]).toContain("Dispatched");
+  expect(steps[4]).toContain("Delivered");
+
+  await page.context().clearCookies();
+  await clearInbox();
+  await signIn(page, "fulfil@xarina.test");
+  await page.goto(`/admin/orders/${order.id}`);
+  await expect(page.getByRole("heading", { name: "Payment Events" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Order Activity" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Order Progress" })).toBeVisible();
+});
+
 test("settings are owner-only, and the owner can add and remove a shipping zone", async ({ page }) => {
   await signIn(page, "fulfil@xarina.test");
   const denied = await page.goto("/admin/settings");

@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { adminDropDetail, STATE_LABEL } from "@/lib/drops/admin";
 import { requireStaff } from "@/lib/staff/session";
 import { createClient } from "@/lib/supabase/server";
+import { DeleteDrop } from "../delete-drop";
 import { DropForm } from "../drop-form";
 import { DropProductsForm } from "../drop-products-form";
 
 export const metadata: Metadata = { title: "Edit drop" };
 
 export default async function EditDropPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireStaff(["owner", "manager", "merchandiser"]);
+  const staff = await requireStaff(["owner", "manager", "merchandiser"]);
   const { id } = await params;
   const supabase = await createClient();
 
@@ -29,16 +31,28 @@ export default async function EditDropPage({ params }: { params: Promise<{ id: s
   const inDrop = new Set(drop.products.map((p) => p.product_id));
 
   return (
-    <div className="gap-space-6 flex flex-col">
+    <div className="gap-space-5 flex max-w-4xl flex-col">
       <header className="gap-space-2 flex flex-col">
-        <h1 className="font-display text-display-m">{drop.name}</h1>
-        <p className="label text-ink-muted">{drop.published ? STATE_LABEL[drop.state] : "Draft"}</p>
+        <Link href="/admin/drops" className="label text-ink-muted hover:text-ink inline-flex items-center gap-space-1">
+          ← Back to Drops
+        </Link>
+        <div className="flex items-center gap-space-3">
+          <h1 className="font-display text-display-m text-ink">{drop.name}</h1>
+          <span className="label px-2 py-0.5 border border-line bg-surface-sunk text-ink">
+            {drop.published ? STATE_LABEL[drop.state] : "Draft"}
+          </span>
+        </div>
+        <p className="text-body-s text-ink-muted">
+          Manage drop timeline, Privé window limits, and assigned designs.
+        </p>
       </header>
 
-      <section aria-labelledby="details" className="gap-space-4 flex flex-col">
-        <h2 id="details" className="font-display text-title">
-          Details
-        </h2>
+      <section aria-labelledby="details" className="border border-line bg-surface-raised p-space-4 flex flex-col gap-space-3">
+        <div className="border-b border-line pb-space-2">
+          <h2 id="details" className="font-display text-title text-ink font-normal">
+            Drop Parameters &amp; Windows
+          </h2>
+        </div>
         <DropForm
           drop={{
             id: drop.id,
@@ -57,10 +71,12 @@ export default async function EditDropPage({ params }: { params: Promise<{ id: s
         />
       </section>
 
-      <section aria-labelledby="designs" className="gap-space-4 flex flex-col">
-        <h2 id="designs" className="font-display text-title">
-          Designs
-        </h2>
+      <section aria-labelledby="designs" className="border border-line bg-surface-raised p-space-4 flex flex-col gap-space-3">
+        <div className="border-b border-line pb-space-2">
+          <h2 id="designs" className="font-display text-title text-ink font-normal">
+            Assigned Designs &amp; Client Interest
+          </h2>
+        </div>
         <DropProductsForm
           dropId={drop.id}
           options={(products ?? []).map((p) => ({
@@ -71,6 +87,17 @@ export default async function EditDropPage({ params }: { params: Promise<{ id: s
           }))}
         />
       </section>
+
+      {staff.role === "owner" && (
+        <section aria-labelledby="delete" className="border border-critical/30 bg-surface-sunk/30 p-space-4 flex flex-col gap-space-3">
+          <div className="border-b border-critical/30 pb-space-2">
+            <h2 id="delete" className="font-display text-title text-critical font-normal">
+              Delete Drop
+            </h2>
+          </div>
+          <DeleteDrop dropId={drop.id} dropName={drop.name} published={drop.published} />
+        </section>
+      )}
     </div>
   );
 }
