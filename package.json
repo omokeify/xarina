@@ -1,0 +1,70 @@
+{
+  "name": "xarina",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset && supabase seed buckets",
+    "db:test": "supabase test db",
+    "db:types": "supabase gen types typescript --local --schema public > lib/supabase/database.types.ts",
+    "test:e2e": "playwright test",
+    "e2e:build": "cross-env NEXT_DIST_DIR=.next-e2e NEXT_PUBLIC_SITE_URL=http://localhost:3100 next build",
+    "e2e:start": "cross-env NEXT_DIST_DIR=.next-e2e NEXT_PUBLIC_SITE_URL=http://localhost:3100 RATE_LIMITS=off next start -p 3100"
+  },
+  "dependencies": {
+    "@mux/mux-node": "^15.5.0",
+    "@mux/mux-player-react": "^3.14.1",
+    "@radix-ui/react-slot": "^1.5.0",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.3.1",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.77.0",
+    "next": "15.5.4",
+    "posthog-js": "^1.453.2",
+    "posthog-node": "^6.0.5",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "resend": "^6.39.0",
+    "server-only": "^0.0.1",
+    "tailwind-merge": "^3.7.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@playwright/test": "1.56.1",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "cross-env": "^10.1.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.4",
+    "prettier": "^3.10.1",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "supabase": "3.2.0",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^5.1.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "supabase",
+      "esbuild",
+      "@tailwindcss/oxide",
+      "unrs-resolver"
+    ]
+  }
+}

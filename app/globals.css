@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+/*
+ * Xarina design tokens — the ONE place colours, type, spacing and radii live.
+ * Values come from docs/brand/tokens.json (Xarina design system); tests/brand-tokens.test.ts
+ * fails if they drift. Components use the Tailwind utilities generated below
+ * (bg-surface, text-ink, p-space-3, text-label, rounded-xs …), never raw hex.
+ */
+
+/* Ivory & Ink — default theme */
+:root {
+  --x-surface: #f4f0e8;
+  --x-surface-raised: #ffffff;
+  --x-surface-sunk: #e9e3d8;
+  --x-ink: #1c1a17;
+  --x-ink-muted: #5c564d;
+  --x-line: #cfc6b8;
+  --x-accent: #a88b5e;
+  --x-action: #1c1a17;
+  --x-on-action: #f4f0e8;
+  --x-focus: #1c1a17;
+  --x-critical: #8a2b2b;
+  color-scheme: light;
+}
+
+/* Privé · Noir & Champagne — Privé pages, bands, invites, and the visitor-chosen
+   dark mode. One block, so the palette lives in one place. */
+:root[data-theme="dark"],
+[data-theme="prive"] {
+  --x-surface: #121110;
+  --x-surface-raised: #1c1a18;
+  --x-surface-sunk: #2a2724;
+  --x-ink: #f7f3ec;
+  --x-ink-muted: #b5ad9f;
+  --x-line: #3a3631;
+  --x-accent: #e3d3b0;
+  --x-action: #e3d3b0;
+  --x-on-action: #121110;
+  --x-focus: #e3d3b0;
+  --x-critical: #e59a8f;
+  color-scheme: dark;
+}
+
+@theme inline {
+  /* Only brand colours exist: Tailwind's default palette is removed. */
+  --color-*: initial;
+  --color-surface: var(--x-surface);
+  --color-surface-raised: var(--x-surface-raised);
+  --color-surface-sunk: var(--x-surface-sunk);
+  --color-ink: var(--x-ink);
+  --color-ink-muted: var(--x-ink-muted);
+  --color-line: var(--x-line);
+  --color-accent: var(--x-accent);
+  --color-action: var(--x-action);
+  --color-on-action: var(--x-on-action);
+  --color-focus: var(--x-focus);
+  --color-critical: var(--x-critical);
+
+  /* Fonts (loaded with next/font in app/layout.tsx) */
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-sans: var(--font-inter), Inter, system-ui, sans-serif;
+}
+
+@theme {
+  /* Type scale — docs/brand/tokens.json type.groups */
+  --text-*: initial;
+  --text-display-xl: 72px;
+  --text-display-xl--line-height: 76px;
+  --text-display-xl--font-weight: 500;
+  --text-display-l: 52px;
+  --text-display-l--line-height: 56px;
+  --text-display-l--font-weight: 500;
+  --text-display-m: 36px;
+  --text-display-m--line-height: 42px;
+  --text-display-m--font-weight: 500;
+  --text-title: 24px;
+  --text-title--line-height: 30px;
+  --text-title--font-weight: 600;
+  --text-wordmark: 24px;
+  --text-wordmark--line-height: 24px;
+  --text-wordmark--font-weight: 600;
+  --text-wordmark--letter-spacing: 0.4em;
+  --text-body: 16px;
+  --text-body--line-height: 26px;
+  --text-body--font-weight: 400;
+  --text-body-s: 14px;
+  --text-body-s--line-height: 22px;
+  --text-body-s--font-weight: 400;
+  --text-label: 12px;
+  --text-label--line-height: 16px;
+  --text-label--font-weight: 600;
+  --text-label--letter-spacing: 0.22em;
+  --text-caption: 12px;
+  --text-caption--line-height: 18px;
+  --text-caption--font-weight: 400;
+
+  /* Spacing — p-space-3, gap-space-4 … */
+  --spacing-space-1: 4px;
+  --spacing-space-2: 8px;
+  --spacing-space-3: 16px;
+  --spacing-space-4: 24px;
+  --spacing-space-5: 40px;
+  --spacing-space-6: 64px;
+  --spacing-space-7: 96px;
+
+  /* Radii — square by default; rounded-xs for inputs, rounded-full for avatars/swatches */
+  --radius-*: initial;
+  --radius-none: 0px;
+  --radius-xs: 2px;
+  --radius-full: 9999px;
+
+  /* No shadows: separate with space and hairline rules */
+  --shadow-*: initial;
+  --drop-shadow-*: initial;
+  --inset-shadow-*: initial;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Visible focus ring on every control (BRAND.md › Accessibility) */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
+
+/* Small caps label style used for buttons, nav, dates and countdown units */
+@utility label {
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* Wordmark face. Size comes from a text-* class (text-wordmark by default) so
+   lockups can scale; weight and tracking are pinned via Tailwind's own vars so
+   a size class can't override them. */
+@utility wordmark {
+  font-family: var(--font-display);
+  --tw-font-weight: 600;
+  font-weight: 600;
+  --tw-tracking: 0.4em;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+}
+
+/* Concept "movement reel" view: a slow pan over a still photograph. Off for reduced motion. */
+@keyframes movement-reel {
+  0%,
+  100% {
+    transform: scale(1.03) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.09) translate3d(0, -1.2%, 0);
+  }
+}
+@utility animate-movement-reel {
+  animation: movement-reel 10s ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}

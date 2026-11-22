@@ -1,0 +1,7 @@
+pnpm-lock.yaml
+.next
+supabase/.temp
+lib/supabase/database.types.ts
+.next-*
+test-results*
+playwright-report
