@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { User } from "lucide-react";
+import { User, Headset, Lock, Plane } from "lucide-react";
 import { Lockup } from "@/components/brand/logo";
 import { getCollections, getStorefrontProducts, type ProductListing } from "@/lib/catalogue";
 import { dropImage, getDrops, type DropSummary } from "@/lib/drops-public";
@@ -14,16 +14,22 @@ import { FooterRegion } from "./footer-region";
 import { FooterSignup } from "./footer-signup";
 
 export function AnnouncementBar({ settings }: { settings: AnnouncementSettings }) {
-  if (!settings.enabled || !settings.text.trim()) return null;
-  const text = <span className="text-caption">{settings.text}</span>;
+  // If explicitly disabled, don't show; otherwise display settings text or default chic announcement
+  if (settings.enabled === false) return null;
+  const displayText = settings.text?.trim() || "Xarina Privé · Complimentary delivery";
+  const content = (
+    <span className="font-display italic text-body-s tracking-wider text-ink/90">
+      {displayText}
+    </span>
+  );
   return (
-    <div className="border-line bg-surface px-space-3 py-space-1 text-ink border-b text-center">
+    <div className="border-line bg-surface-sunk/30 px-space-3 py-1.5 text-ink border-b text-center">
       {settings.href ? (
-        <Link href={settings.href} className="underline-offset-4 hover:underline">
-          {text}
+        <Link href={settings.href} className="hover:opacity-80 transition-opacity">
+          {content}
         </Link>
       ) : (
-        text
+        content
       )}
     </div>
   );
@@ -84,26 +90,8 @@ export async function SiteHeader() {
     <header className="border-line bg-surface text-ink sticky top-0 z-40 border-b">
       <HeaderNav
         menu={buildMenu(products, collections ?? [], drops)}
-        settings={
-          <>
-            <CurrencySwitcher />
-            <ThemeToggle />
-          </>
-        }
-        actions={
-          <>
-            <SearchControl />
-            <Link
-              href="/prive"
-              aria-label="Xarina Privé sign in"
-              title="Privé sign in"
-              className="text-ink-muted hover:text-ink inline-flex size-11 items-center justify-center"
-            >
-              <User aria-hidden="true" className="size-5" />
-            </Link>
-            <BagLink />
-          </>
-        }
+        settings={<CurrencySwitcher />}
+        actions={<BagLink />}
       />
     </header>
   );
@@ -139,92 +127,107 @@ const FOOTER_COLUMNS = [
 const PAYMENT_MARKS = ["Paystack NGN", "Visa", "Mastercard", "DHL Express"];
 
 /**
- * Footer (concept layout): lockup and tagline, drop alerts, link columns, then
- * region, copyright and payment marks. Only confirmed providers are shown
- * (the GBP/USD provider is an open decision).
+ * Footer (Option 1: Minimal Luxury Bar):
+ * - Trust Strip top-framed with hairlines and delicate icons
+ * - Main luxury horizontal bar: XARINA wordmark on left, pipe-separated links on right
+ * - Subtle footnote: Copyright, brand tagline, and discreet legal links
  */
-export function SiteFooter({ whatsapp }: { whatsapp: WhatsAppSettings }) {
-  return (
-    <footer className="border-line border-t">
-      <div className="gap-space-6 px-space-3 pt-space-6 pb-space-5 md:px-space-5 mx-auto grid max-w-screen-2xl lg:grid-cols-12">
-        <div className="gap-space-3 flex max-w-md flex-col lg:col-span-5">
-          <Lockup />
-          <p className="font-display text-title text-ink-muted italic">Wearable statement dressing.</p>
-          <h2 className="font-display text-title mt-space-3">Drop alerts &amp; waitlist</h2>
-          <p className="text-body-s text-ink-muted">Hear the moment each new drop opens to the public.</p>
-          <FooterSignup />
-        </div>
+export function SiteFooter({
+  whatsapp,
+  showTrustStrip = true,
+}: {
+  whatsapp: WhatsAppSettings;
+  showTrustStrip?: boolean;
+}) {
+  const contactHref = whatsapp.number
+    ? whatsappLink(whatsapp.number, "Hello Xarina, I would like assistance with an order.")
+    : "/about#contact";
 
-        <nav aria-label="Information" className="gap-space-4 grid grid-cols-2 sm:grid-cols-3 lg:col-span-7">
-          {FOOTER_COLUMNS.map((col) => (
-            <div key={col.title} className="flex flex-col">
-              <h2 className="label mb-space-2 text-ink">{col.title}</h2>
-              <ul>
-                {col.links.map(({ href, label }) => (
-                  <li key={href}>
-                    <Link
-                      href={href}
-                      className="text-body-s text-ink-muted hover:text-ink inline-flex min-h-11 items-center"
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                ))}
-                {col.title === "Client care" && whatsapp.number && (
-                  <li>
-                    <a
-                      href={whatsappLink(whatsapp.number, "Hello Xarina,")}
-                      className="text-body-s text-ink-muted hover:text-ink inline-flex min-h-11 items-center"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      WhatsApp concierge
-                    </a>
-                  </li>
-                )}
-              </ul>
-            </div>
-          ))}
+  return (
+    <footer className="border-t border-line bg-surface text-ink">
+      {/* Trust Strip */}
+      {showTrustStrip && <TrustStrip />}
+
+      {/* Main Luxury Bar matching client mockup */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-7 sm:py-8 flex flex-col sm:flex-row items-center justify-between gap-5 border-b border-line/40">
+        {/* Left: Brand Wordmark */}
+        <Link
+          href="/"
+          className="font-display tracking-[0.22em] text-[22px] sm:text-[24px] text-ink font-normal uppercase hover:opacity-80 transition-opacity"
+        >
+          XARINA
+        </Link>
+
+        {/* Right: Inline Pipe-Divided Links */}
+        <nav
+          aria-label="Footer Navigation"
+          className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[12px] sm:text-[13px] text-ink/80 tracking-wide"
+        >
+          <Link href="/delivery" className="hover:text-ink transition-colors">
+            Delivery
+          </Link>
+          <span className="text-line select-none font-light">|</span>
+          <a
+            href={contactHref}
+            className="hover:text-ink transition-colors"
+            {...(whatsapp.number ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          >
+            Contact
+          </a>
+          <span className="text-line select-none font-light">|</span>
+          <Link href="/faq" className="hover:text-ink transition-colors">
+            FAQs
+          </Link>
+          <span className="text-line select-none font-light">|</span>
+          <Link href="/about" className="hover:text-ink transition-colors">
+            About
+          </Link>
         </nav>
       </div>
-      <div className="px-space-3 md:px-space-5 mx-auto max-w-screen-2xl">
-        <div className="border-line gap-space-4 py-space-4 flex flex-col border-t md:flex-row md:items-end md:justify-between">
-          <div className="gap-space-1 flex flex-col">
-            <FooterRegion />
-            <p className="text-caption text-ink-muted">
-              © {new Date().getFullYear()} Xarina · Wearable statement dressing
-            </p>
-          </div>
-          <ul aria-label="Payment and delivery partners" className="gap-space-2 flex flex-wrap">
-            {PAYMENT_MARKS.map((m) => (
-              <li key={m} className="label border-line text-ink-muted px-space-2 py-space-1 border">
-                {m}
-              </li>
-            ))}
-          </ul>
+
+      {/* Discreet Footnote & Legal Links */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-caption text-ink-muted text-center sm:text-left">
+        <p className="font-display italic text-[13px] sm:text-[14px]">
+          © {new Date().getFullYear()} Xarina · Wearable statement dressing
+        </p>
+
+        <div className="flex items-center gap-4 text-[11px] tracking-wider uppercase">
+          <Link href="/privacy" className="hover:text-ink transition-colors">
+            Privacy Notice
+          </Link>
+          <span>·</span>
+          <Link href="/terms" className="hover:text-ink transition-colors">
+            Terms &amp; Conditions
+          </Link>
+          <span>·</span>
+          <Link href="/returns" className="hover:text-ink transition-colors">
+            Returns Policy
+          </Link>
         </div>
       </div>
     </footer>
   );
 }
 
-const TRUST = [
-  { title: "Secure payments", body: "Card, bank transfer and USSD through trusted providers." },
-  { title: "Tracked delivery", body: "Tracked delivery in Nigeria, the UK and worldwide." },
-  { title: "Stylist concierge", body: "Sizing and fit advice on WhatsApp, straight from any design page." },
-];
-
 export function TrustStrip() {
   return (
-    <section aria-label="Why shop with Xarina" className="border-line border-t">
-      <ul className="gap-space-4 px-space-3 py-space-5 md:px-space-5 mx-auto grid max-w-screen-2xl md:grid-cols-3">
-        {TRUST.map((t) => (
-          <li key={t.title} className="gap-space-1 flex flex-col">
-            <span className="font-display text-title">{t.title}</span>
-            <span className="text-body-s text-ink-muted">{t.body}</span>
-          </li>
-        ))}
-      </ul>
+    <section aria-label="Why shop with Xarina" className="border-b border-line bg-surface py-4 sm:py-5 px-4">
+      <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-y-2.5 gap-x-4 sm:gap-x-8 text-center text-caption sm:text-body-s text-ink/90">
+        <div className="flex items-center gap-2">
+          <Lock aria-hidden="true" className="size-4 text-ink-muted stroke-[1.5]" />
+          <span>Secure payments</span>
+        </div>
+        <span className="text-line select-none font-light">|</span>
+        <div className="flex items-center gap-2">
+          <Plane aria-hidden="true" className="size-4 text-ink-muted stroke-[1.5]" />
+          <span>Local &amp; international delivery</span>
+        </div>
+        <span className="text-line select-none font-light">|</span>
+        <div className="flex items-center gap-2">
+          <Headset aria-hidden="true" className="size-4 text-ink-muted stroke-[1.5]" />
+          <span>Personal assistance</span>
+        </div>
+      </div>
     </section>
   );
 }

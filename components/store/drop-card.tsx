@@ -50,20 +50,23 @@ export function DropCard({ drop, priority = false }: { drop: DropSummary; priori
           {DROP_STATE_LABEL[drop.state]}
         </span>
       </div>
-      <div className="gap-space-1 flex flex-col">
-        <h3 className="font-display text-title group-hover:underline group-hover:underline-offset-4">
+      <div className="gap-space-1 flex flex-col pt-1">
+        <h3 className="font-display italic text-[24px] sm:text-[28px] text-ink font-normal leading-snug group-hover:text-accent transition-colors">
           {drop.name}
         </h3>
-        {drop.pitch && <p className="text-body-s text-ink-muted line-clamp-2">{drop.pitch}</p>}
-        <p className="text-caption text-ink-muted">
+        {drop.pitch && <p className="font-display italic text-body-s sm:text-body text-ink-muted line-clamp-2">{drop.pitch}</p>}
+        <p className="label text-[11px] tracking-[0.16em] text-ink-muted mt-1 uppercase">
           {when && (
             <>
-              {when.label} <LocalTime iso={when.iso} withTime={drop.state !== "closed"} />
+              {when.label}: <LocalTime iso={when.iso} withTime={drop.state !== "closed"} />
             </>
           )}
           {when && drop.design_count > 0 && " · "}
           {drop.design_count > 0 && `${drop.design_count} ${drop.design_count === 1 ? "design" : "designs"}`}
         </p>
+        <span className="label text-[11px] tracking-[0.22em] text-ink group-hover:text-accent underline underline-offset-4 mt-2 font-semibold inline-block">
+          EXPLORE DROP →
+        </span>
       </div>
     </Link>
   );

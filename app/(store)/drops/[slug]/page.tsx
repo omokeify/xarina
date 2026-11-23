@@ -6,9 +6,10 @@ import { KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Countdown } from "@/components/store/countdown";
 import { DropCard, DROP_STATE_LABEL } from "@/components/store/drop-card";
-import { HeroFrame } from "@/components/store/hero-frame";
+import { ProductImage } from "@/components/store/product-image";
 import { LocalTime } from "@/components/store/local-time";
 import { ProductCard } from "@/components/store/product-card";
+import { PriveShowcase } from "@/components/store/prive-showcase";
 import { getDrop, getDrops, type DropPage } from "@/lib/drops-public";
 import { isPriveMember } from "@/lib/prive/session";
 import { publicEnv } from "@/lib/env";
@@ -63,19 +64,7 @@ export default async function DropPageView({ params }: Params) {
       ? { kind: "image" as const, path: cover.cover_path, alt: cover.cover_alt ?? cover.name }
       : null;
 
-  // Countdown target (DROP-1/2, HOME-2): Privé members count to VIP opening.
-  const countdown =
-    drop.state === "upcoming"
-      ? prive
-        ? { to: drop.vip_opens_at, label: "Privé opens in" }
-        : { to: drop.public_opens_at, label: "Public drop opens in" }
-      : drop.state === "vip"
-        ? { to: drop.public_opens_at, label: "Opens to everyone in" }
-        : drop.state === "public" && drop.closes_at
-          ? { to: drop.closes_at, label: "Closes in" }
-          : null;
-
-  // One primary action. Purchase is re-checked on the server (DROP-3).
+  const beforePublic = drop.state === "upcoming" || drop.state === "vip";
   const canShop = drop.state === "public" || (drop.state === "vip" && prive);
   const action =
     drop.state === "closed"
@@ -84,71 +73,162 @@ export default async function DropPageView({ params }: Params) {
         ? { label: "Shop the drop", href: "#designs" }
         : { label: "Join the waitlist", href: "#designs" };
 
+  const targetDate = prive && drop.state === "upcoming" ? drop.vip_opens_at : drop.public_opens_at;
+  const dateObj = new Date(targetDate);
+  const formattedDate = dateObj
+    .toLocaleString("en-GB", {
+      day: "numeric",
+      month: "long",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
+    })
+    .toUpperCase();
+
+  const launchBadgeText =
+    drop.state === "vip"
+      ? `PRIVÉ WINDOW OPEN · PUBLIC: ${formattedDate}`
+      : drop.state === "public"
+        ? "NOW LIVE"
+        : `PUBLIC LAUNCH · ${formattedDate}`;
+
+  const imagePath = media?.path ?? null;
+  const imageAlt = media?.alt ?? drop.name;
+
   return (
     <>
-      <HeroFrame
-        media={media}
-        theme="prive"
-        countdown={
-          countdown && <Countdown to={countdown.to} serverNow={server_now} label={countdown.label} />
-        }
-      >
-        <nav aria-label="Breadcrumb" className="text-caption text-ink-muted">
-          <Link href="/drops" className="hover:text-ink">
-            Drops
-          </Link>
-          <span aria-hidden className="px-space-2">
-            /
-          </span>
-          <span className="text-ink">{drop.name}</span>
-        </nav>
-        <p className="label text-ink-muted">{DROP_STATE_LABEL[drop.state]}</p>
-        <h1 id="hero-heading" className="font-display text-display-l md:text-display-xl">
-          {drop.name}
-        </h1>
-        {drop.pitch && <p className="text-body text-ink-muted max-w-xl">{drop.pitch}</p>}
-        <div className="gap-space-3 pt-space-2 sm:gap-space-4 flex flex-col sm:flex-row sm:items-center">
-          <Button asChild className="whitespace-nowrap sm:w-auto">
-            <Link href={action.href}>{action.label}</Link>
-          </Button>
-          {drop.state !== "closed" && drop.state !== "public" && !prive && (
-            <Link
-              href="/prive"
-              className="text-body-s text-ink inline-flex min-h-11 items-center whitespace-nowrap underline underline-offset-4"
+      <section aria-labelledby="hero-heading" className="border-b border-line bg-surface text-ink">
+        <div className="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center">
+          {/* Mobile: Tall Portrait Fashion Photograph First */}
+          <div className="md:hidden w-full aspect-[4/5] bg-surface-sunk relative overflow-hidden">
+            {imagePath ? (
+              <ProductImage
+                path={imagePath}
+                alt={imageAlt}
+                sizes="100vw"
+                priority
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-surface-sunk" />
+            )}
+          </div>
+
+          {/* Left Column (Desktop) / Bottom Content (Mobile) */}
+          <div className="px-space-4 py-space-6 sm:px-space-6 sm:py-space-7 md:px-space-7 lg:px-space-8 flex flex-col justify-center items-center md:items-start text-center md:text-left">
+            {/* Breadcrumb */}
+            <nav aria-label="Breadcrumb" className="label text-[10px] sm:text-[11px] tracking-[0.2em] text-ink-muted uppercase mb-3">
+              <Link href="/drops" className="hover:text-ink">
+                Drops
+              </Link>
+              <span aria-hidden className="px-2">
+                /
+              </span>
+              <span className="text-ink">{drop.name}</span>
+            </nav>
+
+            {/* Headline */}
+            <h1
+              id="hero-heading"
+              className="font-display italic text-[42px] sm:text-[52px] lg:text-[64px] leading-[1.0] text-ink font-normal tracking-tight"
             >
-              Privé members shop first.
-            </Link>
-          )}
+              {drop.name}
+            </h1>
+
+            {/* Thin Hairline Divider */}
+            <div className="w-full max-w-md border-t border-line/60 my-4" />
+
+            {/* Subtitle / Pitch */}
+            {drop.pitch && (
+              <p className="font-display italic text-title sm:text-[22px] leading-snug text-ink/90 max-w-md">
+                {drop.pitch}
+              </p>
+            )}
+
+            {/* Launch Date Badge */}
+            <div className="mt-5 mb-5">
+              <span className="inline-block bg-[#E3D3B0]/35 text-ink border border-accent/40 px-3.5 py-1.5 label text-[11px] tracking-[0.18em]">
+                {launchBadgeText}
+              </span>
+            </div>
+
+            {/* Boxed Countdown Timer */}
+            {beforePublic && (
+              <div className="mb-6">
+                <Countdown
+                  to={targetDate}
+                  serverNow={server_now}
+                  variant="boxed"
+                />
+              </div>
+            )}
+
+            {/* Call to Action Button */}
+            <Button
+              asChild
+              className="w-full max-w-sm h-12 bg-action text-on-action hover:opacity-90 label text-[12px] tracking-[0.2em] font-semibold shadow-none rounded-none"
+            >
+              <Link href={action.href}>{action.label.toUpperCase()}</Link>
+            </Button>
+
+            {/* Sub-caption */}
+            {beforePublic && (
+              <p className="font-display italic text-body-s text-ink-muted mt-2.5">
+                <Link href="/prive" className="hover:text-ink transition-colors">
+                  Xarina Privé members shop first.
+                </Link>
+              </p>
+            )}
+          </div>
+
+          {/* Right Column (Desktop >= md): Tall Portrait Photograph */}
+          <div className="hidden md:block w-full h-full min-h-[580px] lg:min-h-[720px] bg-surface-sunk relative overflow-hidden border-l border-line/60">
+            {imagePath ? (
+              <ProductImage
+                path={imagePath}
+                alt={imageAlt}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                priority
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-surface-sunk" />
+            )}
+          </div>
         </div>
-      </HeroFrame>
+      </section>
 
       <Timeline drop={drop} />
 
       <section
         id="designs"
         aria-labelledby="designs-heading"
-        className="border-line scroll-mt-space-7 border-b"
+        className="border-line scroll-mt-space-7 border-b bg-surface py-12 sm:py-16"
       >
-        <div className="px-space-3 py-space-6 md:px-space-5 mx-auto max-w-screen-2xl">
-          <div className="mb-space-5 gap-space-1 flex flex-col">
-            <p className="label text-ink-muted">
+        <div className="px-space-4 sm:px-space-6 md:px-space-8 mx-auto max-w-screen-2xl">
+          <div className="mb-10 flex flex-col items-center text-center">
+            <div className="flex items-center justify-center gap-4 w-full mb-2">
+              <div className="h-px bg-line/80 flex-1 max-w-[60px] sm:max-w-[140px]" />
+              <h2 id="designs-heading" className="font-display italic text-[34px] sm:text-[44px] text-ink font-normal tracking-tight">
+                The Designs
+              </h2>
+              <div className="h-px bg-line/80 flex-1 max-w-[60px] sm:max-w-[140px]" />
+            </div>
+            <p className="font-display italic text-body-s sm:text-title text-ink-muted">
               {drop.state === "upcoming" || (drop.state === "vip" && !prive)
                 ? "Choose a design to join its waitlist"
                 : drop.state === "closed"
                   ? "From the archive"
                   : "Limited, numbered pieces"}
             </p>
-            <h2 id="designs-heading" className="font-display text-display-m">
-              The designs
-            </h2>
             {products.length > 0 && (
-              <p className="text-caption text-ink-muted tabular-nums">
-                {products.length} {products.length === 1 ? "design" : "designs"}
+              <p className="label text-[11px] tracking-[0.22em] text-accent mt-2 font-semibold">
+                {products.length} {products.length === 1 ? "NUMBERED PIECE" : "NUMBERED PIECES"}
               </p>
             )}
           </div>
           {products.length > 0 ? (
-            <ul className="gap-x-space-3 gap-y-space-5 md:gap-x-space-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <ul className="gap-x-space-4 gap-y-space-6 md:gap-x-space-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {products.map((p, i) => (
                 <li key={p.id}>
                   <ProductCard product={p} priority={i < 2} />
@@ -156,9 +236,9 @@ export default async function DropPageView({ params }: Params) {
               ))}
             </ul>
           ) : (
-            <p className="text-body text-ink-muted">
+            <p className="text-center font-display italic text-title text-ink-muted py-8">
               This drop has closed and its designs are no longer available.{" "}
-              <Link href="/shop#available" className="text-ink underline underline-offset-4">
+              <Link href="/shop#available" className="text-ink underline underline-offset-4 hover:text-accent transition-colors">
                 Shop available now
               </Link>
             </p>
@@ -166,23 +246,26 @@ export default async function DropPageView({ params }: Params) {
         </div>
       </section>
 
-      {drop.state !== "closed" && <PriveNote isMember={prive} limit={drop.vip_limit_per_member} />}
+      {drop.state !== "closed" && <PriveShowcase />}
 
       {others.length > 0 && (
-        <section aria-labelledby="more-drops-heading" className="border-line border-b">
-          <div className="px-space-3 py-space-6 md:px-space-5 mx-auto max-w-screen-2xl">
-            <div className="mb-space-5 gap-space-3 flex items-end justify-between">
-              <h2 id="more-drops-heading" className="font-display text-display-m">
-                More drops
-              </h2>
+        <section aria-labelledby="more-drops-heading" className="border-line border-b bg-surface py-12 sm:py-16">
+          <div className="px-space-4 sm:px-space-6 md:px-space-8 mx-auto max-w-screen-2xl">
+            <div className="mb-8 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-px bg-accent" />
+                <h2 id="more-drops-heading" className="font-display italic text-[28px] sm:text-[34px] text-ink font-normal tracking-tight">
+                  More Drops
+                </h2>
+              </div>
               <Link
                 href="/drops"
-                className="text-body-s text-ink-muted hover:text-ink min-h-11 content-center underline underline-offset-4"
+                className="label text-[11px] tracking-[0.22em] text-ink hover:text-accent underline underline-offset-4 transition-colors font-semibold"
               >
-                All drops
+                ALL DROPS →
               </Link>
             </div>
-            <ul className="gap-x-space-4 gap-y-space-6 grid md:grid-cols-2">
+            <ul className="gap-x-space-6 gap-y-space-8 grid md:grid-cols-2">
               {others.map((d) => (
                 <li key={d.id}>
                   <DropCard drop={d} />
@@ -219,56 +302,33 @@ function Timeline({ drop }: { drop: DropPage["drop"] }) {
   const shown = drop.vip_opens_at === drop.public_opens_at ? steps.filter((s) => s.key !== "vip") : steps;
 
   return (
-    <section aria-labelledby="timeline-heading" className="border-line border-b">
-      <div className="px-space-3 py-space-5 md:px-space-5 mx-auto max-w-screen-2xl">
-        <h2 id="timeline-heading" className="label text-ink-muted mb-space-4">
-          Drop schedule
-        </h2>
-        <ol className="gap-space-4 grid md:grid-cols-3">
+    <section aria-labelledby="timeline-heading" className="border-line border-b bg-surface py-8 sm:py-10">
+      <div className="px-space-4 sm:px-space-6 md:px-space-8 mx-auto max-w-screen-2xl">
+        <div className="flex items-center gap-3 mb-6">
+          <span className="w-6 h-px bg-accent" />
+          <h2 id="timeline-heading" className="label text-accent text-[11px] tracking-[0.22em] uppercase font-semibold">
+            Drop Schedule (Local Time)
+          </h2>
+        </div>
+        <ol className="gap-space-6 grid md:grid-cols-3">
           {shown.map((s) => (
-            <li key={s.key} className="border-line gap-space-1 pt-space-3 flex flex-col border-t-2">
-              <span className={cn("label", s.reached ? "text-ink" : "text-ink-muted")}>
+            <li key={s.key} className={cn("gap-space-1 pt-space-3 flex flex-col border-t-2 transition-colors", s.reached ? "border-accent" : "border-line")}>
+              <span className={cn("label text-[11px] tracking-[0.18em] uppercase", s.reached ? "text-accent font-semibold" : "text-ink-muted")}>
                 {s.reached && (
                   <span
                     aria-hidden
-                    className="bg-accent mr-space-2 inline-block size-1.5 rounded-full align-middle"
+                    className="bg-accent mr-space-2 inline-block size-2 rounded-full align-middle shadow-xs"
                   />
                 )}
                 {s.label}
                 {s.reached && <span className="sr-only"> (done)</span>}
               </span>
-              <span className="font-display text-title">
+              <span className="font-display italic text-[22px] sm:text-[26px] text-ink mt-1">
                 <LocalTime iso={s.iso} />
               </span>
             </li>
           ))}
         </ol>
-      </div>
-    </section>
-  );
-}
-
-/** Noir note on how Privé early access works for this drop (VIP-3 limit when set). */
-function PriveNote({ isMember, limit }: { isMember: boolean; limit: number | null }) {
-  return (
-    <section data-theme="prive" aria-labelledby="drop-prive-heading" className="bg-surface text-ink">
-      <div className="gap-space-4 px-space-3 py-space-6 md:px-space-5 mx-auto flex max-w-screen-2xl flex-col md:flex-row md:items-center md:justify-between">
-        <div className="gap-space-2 flex max-w-xl flex-col">
-          <p className="label text-accent gap-space-2 inline-flex items-center">
-            <KeyRound aria-hidden className="size-4" />
-            Members-only early access
-          </p>
-          <h2 id="drop-prive-heading" className="font-display text-display-m">
-            Xarina Privé shops first
-          </h2>
-          <p className="text-body-s text-ink-muted">
-            Privé members can buy during the early-access window, before the drop opens to everyone.
-            {limit ? ` Up to ${limit} ${limit === 1 ? "piece" : "pieces"} per member.` : ""}
-          </p>
-        </div>
-        <Button asChild className="whitespace-nowrap md:w-auto">
-          <Link href="/prive">{isMember ? "Enter Privé" : "Verify or request access"}</Link>
-        </Button>
       </div>
     </section>
   );

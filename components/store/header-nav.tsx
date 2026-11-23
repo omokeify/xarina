@@ -83,114 +83,135 @@ export function HeaderNav({
 
   const navItem = (active: boolean) =>
     cn(
-      "label inline-flex min-h-11 items-center border-b border-transparent transition-colors",
-      active ? "border-ink text-ink" : "text-ink-muted hover:text-ink",
+      "label inline-flex items-center text-body-s tracking-[0.18em] transition-colors py-1",
+      active ? "text-ink font-semibold" : "text-ink-muted hover:text-ink",
     );
 
   return (
-    <div onMouseLeave={() => setPanel(null)} className="relative">
-      <div className="gap-x-space-2 px-space-3 md:px-space-5 mx-auto grid max-w-screen-2xl grid-cols-[auto_1fr_auto] items-center md:grid-cols-[1fr_auto_1fr]">
-        {/* Left zone */}
-        <div className="col-start-1 row-start-1 flex min-w-0 items-center">
-          <button
-            type="button"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-menu"
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            className="-ml-space-2 text-ink inline-flex size-11 items-center justify-center md:hidden"
+    <div onMouseLeave={() => setPanel(null)} className="relative w-full">
+      {/* ─────────────────────────────────────────────────────────────
+          1. DESKTOP HEADER (>= md)
+          Two tiers:
+          - Top: Centered Brand Name + Tagline, Right: Currency + Bag
+          - Bottom: Centered Nav Row with pipe dividers
+         ───────────────────────────────────────────────────────────── */}
+      <div className="hidden md:flex flex-col">
+        {/* Tier 1: Brand Center + Controls Right */}
+        <div className="relative max-w-screen-2xl w-full mx-auto px-space-5 pt-space-4 pb-space-3 flex items-center justify-center">
+          <Link
+            href="/"
+            aria-label="Xarina home"
+            className="flex flex-col items-center group text-center select-none"
           >
-            {mobileOpen ? <X aria-hidden className="size-5" /> : <Menu aria-hidden className="size-5" />}
-          </button>
+            <span className="font-display text-[32px] lg:text-[36px] tracking-[0.38em] uppercase text-ink font-normal leading-none pl-[0.38em]">
+              Xarina
+            </span>
+            <span className="label text-[10px] lg:text-[11px] tracking-[0.24em] text-ink-muted uppercase mt-2">
+              Wearable Statement Dressing
+            </span>
+          </Link>
 
-          <nav aria-label="Main" className="gap-space-4 hidden items-center md:flex">
-            <button
-              type="button"
-              aria-expanded={panel === "shop"}
-              onMouseEnter={() => setPanel("shop")}
-              onClick={() => setPanel((p) => (p === "shop" ? null : "shop"))}
-              className={navItem(panel === "shop" || pathname.startsWith("/shop"))}
-            >
-              Shop
-            </button>
-            {menu.drops.length > 0 ? (
-              <button
-                type="button"
-                aria-expanded={panel === "drops"}
-                onMouseEnter={() => setPanel("drops")}
-                onClick={() => setPanel((p) => (p === "drops" ? null : "drops"))}
-                className={navItem(panel === "drops" || pathname.startsWith("/drops"))}
-              >
-                Drops
-              </button>
-            ) : (
-              <Link
-                href="/drops"
-                onMouseEnter={() => setPanel(null)}
-                className={navItem(pathname.startsWith("/drops"))}
-              >
-                Drops
-              </Link>
-            )}
-            <Link
-              href="/prive"
-              onMouseEnter={() => setPanel(null)}
-              className={navItem(pathname.startsWith("/prive"))}
-            >
-              Xarina Privé
-            </Link>
-            <Link
-              href="/about"
-              onMouseEnter={() => setPanel(null)}
-              className={navItem(pathname === "/about")}
-            >
-              Maison
-            </Link>
-          </nav>
-        </div>
-
-        {/* Centre zone: wordmark alone on mobile, lockup on desktop (BRAND.md › Lockups) */}
-        <Link
-          href="/"
-          aria-label="Xarina home"
-          className="py-space-2 md:py-space-3 col-start-2 row-start-1 flex flex-col items-center"
-        >
-          <Wordmark className="text-body-s sm:text-title md:hidden" />
-          <Lockup size="sm" className="hidden md:inline-flex" />
-        </Link>
-
-        {/* Right zone. Settings render once: second row on mobile, here on desktop. */}
-        <div className="contents md:col-start-3 md:row-start-1 md:flex md:items-center md:justify-end">
-          <div className="col-start-2 col-end-4 row-start-2 flex items-center justify-self-end md:col-auto md:row-auto">
+          {/* Right Controls: [ NGN ⌄ ] and Bag Icon */}
+          <div className="absolute right-space-5 top-1/2 -translate-y-1/2 flex items-center gap-space-3">
             {settings}
-          </div>
-          <div className="col-start-3 row-start-1 flex items-center justify-self-end md:col-auto md:row-auto">
             {actions}
           </div>
         </div>
 
-        {/* Mobile second row: hairline + quick links (keeps a 360px screen from overflowing) */}
-        <div
-          aria-hidden
-          className="border-line pointer-events-none col-span-3 col-start-1 row-start-2 h-full border-t md:hidden"
-        />
+        {/* Tier 2: Centered Nav Links with Pipe Dividers */}
         <nav
-          aria-label="Quick links"
-          className="gap-space-3 col-span-2 col-start-1 row-start-2 flex items-center md:hidden"
+          aria-label="Main navigation"
+          className="border-t border-line/60 py-2.5 flex items-center justify-center gap-6 text-center"
         >
-          <Link
-            href="/shop"
-            className="label text-ink-muted hover:text-ink inline-flex min-h-11 items-center"
+          <button
+            type="button"
+            aria-expanded={panel === "shop"}
+            onMouseEnter={() => setPanel("shop")}
+            onClick={() => setPanel((p) => (p === "shop" ? null : "shop"))}
+            className={navItem(panel === "shop" || pathname.startsWith("/shop"))}
           >
             Shop
-          </Link>
+          </button>
+          <span className="text-line select-none font-light">|</span>
+
+          {menu.drops.length > 0 ? (
+            <button
+              type="button"
+              aria-expanded={panel === "drops"}
+              onMouseEnter={() => setPanel("drops")}
+              onClick={() => setPanel((p) => (p === "drops" ? null : "drops"))}
+              className={navItem(panel === "drops" || pathname.startsWith("/drops"))}
+            >
+              Upcoming Drops
+            </button>
+          ) : (
+            <Link
+              href="/drops"
+              onMouseEnter={() => setPanel(null)}
+              className={navItem(pathname.startsWith("/drops"))}
+            >
+              Upcoming Drops
+            </Link>
+          )}
+          <span className="text-line select-none font-light">|</span>
+
           <Link
             href="/prive"
-            className="label text-ink-muted hover:text-ink inline-flex min-h-11 items-center"
+            onMouseEnter={() => setPanel(null)}
+            className={navItem(pathname.startsWith("/prive"))}
           >
-            Privé
+            Xarina Privé
+          </Link>
+          <span className="text-line select-none font-light">|</span>
+
+          <Link
+            href="/about"
+            onMouseEnter={() => setPanel(null)}
+            className={navItem(pathname === "/about")}
+          >
+            About
           </Link>
         </nav>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────────
+          2. MOBILE HEADER (< md)
+          - Left: Hamburger Menu Icon
+          - Center: XARINA wordmark + Tagline | [ NGN ⌄ ]
+          - Right: Bag Icon
+         ───────────────────────────────────────────────────────────── */}
+      <div className="md:hidden px-space-3 py-space-2 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => setMobileOpen((v) => !v)}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-menu"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          className="text-ink inline-flex size-11 items-center justify-center -ml-space-2"
+        >
+          {mobileOpen ? <X aria-hidden className="size-5" /> : <Menu aria-hidden className="size-5" />}
+        </button>
+
+        <div className="flex flex-col items-center text-center">
+          <Link
+            href="/"
+            aria-label="Xarina home"
+            className="font-display text-title tracking-[0.32em] uppercase text-ink pl-[0.32em] leading-tight"
+          >
+            Xarina
+          </Link>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="label text-[9px] tracking-[0.16em] uppercase text-ink-muted">
+              Wearable Statement Dressing
+            </span>
+            <span className="text-line text-[10px]">|</span>
+            {settings}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end -mr-space-2">
+          {actions}
+        </div>
       </div>
 
       {panel === "shop" && <ShopPanel menu={menu} />}

@@ -16,11 +16,13 @@ export function Countdown({
   serverNow,
   label,
   className,
+  variant = "default",
 }: {
   to: string;
   serverNow: string;
-  label: string;
+  label?: string;
   className?: string;
+  variant?: "default" | "boxed";
 }) {
   const router = useRouter();
   const target = Date.parse(to);
@@ -44,6 +46,40 @@ export function Countdown({
     }
   }, [parts.done, router]);
 
+  if (variant === "boxed") {
+    const boxedUnits = [
+      { value: parts.days, unit: "DAYS" },
+      { value: parts.hours, unit: "HRS" },
+      { value: parts.minutes, unit: "MIN" },
+    ];
+    return (
+      <div
+        role="timer"
+        aria-live="off"
+        aria-label={`${label ?? "Launch in"} ${parts.days} days ${parts.hours} hours ${parts.minutes} minutes`}
+        className={cn("flex items-center gap-2 sm:gap-3", className)}
+      >
+        {boxedUnits.map(({ value, unit }, i) => (
+          <div key={unit} className="flex items-center gap-2 sm:gap-3">
+            {i > 0 && (
+              <span aria-hidden="true" className="font-display text-xl sm:text-2xl text-ink font-bold select-none pb-1">
+                :
+              </span>
+            )}
+            <div className="border border-line bg-surface-raised min-w-[70px] sm:min-w-[80px] py-2.5 px-3 flex flex-col items-center justify-center text-center">
+              <span className="font-display text-2xl sm:text-[32px] font-bold text-ink leading-tight tabular-nums">
+                {String(value).padStart(2, "0")}
+              </span>
+              <span className="label text-[10px] tracking-[0.18em] text-ink-muted uppercase mt-0.5">
+                {unit}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   const units = [
     { value: parts.days, unit: "Days" },
     { value: parts.hours, unit: "Hours" },
@@ -54,11 +90,11 @@ export function Countdown({
 
   return (
     <div className={cn("gap-space-2 flex flex-col", className)}>
-      <p className="label text-ink-muted">{label}</p>
+      {label && <p className="label text-ink-muted">{label}</p>}
       <div
         role="timer"
         aria-live="off"
-        aria-label={`${label} ${parts.days} days ${parts.hours} hours ${parts.minutes} minutes`}
+        aria-label={`${label ?? ""} ${parts.days} days ${parts.hours} hours ${parts.minutes} minutes`}
         className="gap-space-2 flex items-start"
       >
         {units.map(({ value, unit }, i) => (

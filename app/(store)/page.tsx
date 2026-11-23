@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Countdown } from "@/components/store/countdown";
 import { ProductCard } from "@/components/store/product-card";
 import { ProductImage } from "@/components/store/product-image";
-import { HeroFrame as SharedHeroFrame, type HeroMedia } from "@/components/store/hero-frame";
 import { AvailableCarousel } from "@/components/store/available-carousel";
-import { TrustStrip } from "@/components/store/site-chrome";
+import { PriveShowcase } from "@/components/store/prive-showcase";
+import { AboutFeature } from "@/components/store/about-feature";
 import { getServerNow, getStorefrontProducts, type ProductListing } from "@/lib/catalogue";
 import { getFeaturedDrop, type FeaturedDrop } from "@/lib/featured-drop";
 import { getSiteSettings, type HeroSettings } from "@/lib/site-settings";
@@ -64,16 +64,9 @@ export default async function HomePage() {
       ) : (
         <QuietHero hero={settings.hero} />
       )}
-      {upcomingPair.length > 0 && <UpcomingDrops products={upcomingPair} />}
-      {available.length > 0 && <AvailableNow products={available} />}
-      <PriveDiptych
-        isMember={prive}
-        tile={tile ?? null}
-        image={priveImage ?? null}
-        openDropName={vipPick?.drop_name ?? null}
-      />
-      <NumberedRuns image={editorial ?? null} />
-      <TrustStrip />
+      <AvailableNow products={available.length > 0 ? available : products} />
+      <PriveShowcase />
+      <AboutFeature image={editorial} />
     </>
   );
 }
@@ -99,105 +92,169 @@ function DropHero({
   // HOME-1: one primary action. Waitlists are per design (WL-1).
   const action =
     drop.state === "upcoming"
-      ? { label: "Join the waitlist", href: single ? `/p/${single.slug}#waitlist` : `${dropHref}#designs` }
-      : { label: "Shop the drop", href: single ? `/p/${single.slug}` : `${dropHref}#designs` };
+      ? { label: "JOIN THE WAITLIST", href: single ? `/p/${single.slug}#waitlist` : `${dropHref}#designs` }
+      : { label: "SHOP THE DROP", href: single ? `/p/${single.slug}` : `${dropHref}#designs` };
   const cover = drop.products.find((p) => p.cover_path);
-  const kicker =
+  const media = hero.media;
+  const imagePath =
+    media?.type === "image" && media.storage_path
+      ? media.storage_path
+      : cover?.cover_path ?? null;
+  const imageAlt = media?.alt || cover?.cover_alt || drop.name;
+
+  const targetDate = prive && drop.state === "upcoming" ? drop.vip_opens_at : drop.public_opens_at;
+  const dateObj = new Date(targetDate);
+  const formattedDate = dateObj
+    .toLocaleString("en-GB", {
+      day: "numeric",
+      month: "long",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
+    })
+    .toUpperCase();
+
+  const launchBadgeText =
     drop.state === "vip"
-      ? "Privé early access open"
+      ? `PRIVÉ WINDOW OPEN · PUBLIC: ${formattedDate}`
       : drop.state === "public"
-        ? "Limited drop, live now"
-        : "Scheduled limited drop";
+        ? "NOW LIVE"
+        : `PUBLIC LAUNCH · ${formattedDate}`;
 
   return (
-    <HeroFrame
-      hero={hero}
-      fallbackPath={cover?.cover_path ?? null}
-      fallbackAlt={cover?.cover_alt || drop.name}
-      countdown={
-        beforePublic && (
-          <Countdown
-            // HOME-2: Privé members count down to VIP opening, everyone else to public.
-            to={prive && drop.state === "upcoming" ? drop.vip_opens_at : drop.public_opens_at}
-            serverNow={serverNow}
-            label={
-              prive && drop.state === "upcoming"
-                ? "Privé opens in"
-                : drop.state === "vip"
-                  ? "Opens to everyone in"
-                  : "Public drop opens in"
-            }
-          />
-        )
-      }
-    >
-      <p className="label text-ink-muted">{kicker}</p>
-      <h1 id="hero-heading" className="font-display text-display-l md:text-display-xl">
-        {hero.headline || drop.name}
-      </h1>
-      {(hero.pitch || drop.pitch) && (
-        <p className="text-body text-ink-muted max-w-xl">{hero.pitch || drop.pitch}</p>
-      )}
-      <div className="gap-space-3 pt-space-2 sm:gap-space-4 flex flex-col sm:flex-row sm:items-center">
-        <Button asChild className="whitespace-nowrap sm:w-auto">
-          <Link href={action.href}>{action.label}</Link>
-        </Button>
-        {beforePublic && (
-          <Link
-            href="/prive"
-            className="text-body-s text-ink inline-flex min-h-11 items-center whitespace-nowrap underline underline-offset-4"
+    <section aria-labelledby="hero-heading" className="border-b border-line bg-surface text-ink">
+      <div className="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center">
+        {/* Mobile: Tall Portrait Fashion Photograph First */}
+        <div className="md:hidden w-full aspect-[4/5] bg-surface-sunk relative overflow-hidden">
+          {imagePath ? (
+            <ProductImage
+              path={imagePath}
+              alt={imageAlt}
+              sizes="100vw"
+              priority
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-surface-sunk" />
+          )}
+        </div>
+
+        {/* Left Column (Desktop) / Bottom Content (Mobile) */}
+        <div className="px-space-4 py-space-6 sm:px-space-6 sm:py-space-7 md:px-space-7 lg:px-space-8 flex flex-col justify-center items-center md:items-start text-center md:text-left">
+          {/* Headline (e.g. The Sorbet Drop) */}
+          <h1
+            id="hero-heading"
+            className="font-display italic text-[44px] sm:text-[54px] lg:text-[68px] leading-[1.0] text-ink font-normal tracking-tight"
           >
-            Privé members shop first.
-          </Link>
-        )}
+            {hero.headline || drop.name}
+          </h1>
+
+          {/* Thin Hairline Divider */}
+          <div className="w-full max-w-md border-t border-line/60 my-4" />
+
+          {/* Subtitle / Pitch */}
+          <div className="flex flex-col gap-1 max-w-md">
+            <p className="font-display italic text-title sm:text-[22px] leading-snug text-ink/90">
+              {hero.pitch || drop.pitch || "Two layers. One unforgettable entrance."}
+            </p>
+            <p className="font-display italic text-body-s sm:text-body text-ink-muted leading-relaxed">
+              Pink chiffon floating over yellow. A limited release.
+            </p>
+          </div>
+
+          {/* Launch Date Badge */}
+          <div className="mt-5 mb-5">
+            <span className="inline-block bg-[#E3D3B0]/35 text-ink border border-accent/40 px-3.5 py-1.5 label text-[11px] tracking-[0.18em]">
+              {launchBadgeText}
+            </span>
+          </div>
+
+          {/* Boxed Countdown Timer */}
+          {beforePublic && (
+            <div className="mb-6">
+              <Countdown
+                to={targetDate}
+                serverNow={serverNow}
+                variant="boxed"
+              />
+            </div>
+          )}
+
+          {/* Call to Action Button */}
+          <Button
+            asChild
+            className="w-full max-w-sm h-12 bg-action text-on-action hover:opacity-90 label text-[12px] tracking-[0.2em] font-semibold shadow-none rounded-none"
+          >
+            <Link href={action.href}>{action.label}</Link>
+          </Button>
+
+          {/* Sub-caption */}
+          {beforePublic && (
+            <p className="font-display italic text-body-s text-ink-muted mt-2.5">
+              <Link href="/prive" className="hover:text-ink transition-colors">
+                Xarina Privé members shop first.
+              </Link>
+            </p>
+          )}
+        </div>
+
+        {/* Right Column (Desktop >= md): Tall Portrait Photograph */}
+        <div className="hidden md:block w-full h-full min-h-[580px] lg:min-h-[720px] bg-surface-sunk relative overflow-hidden border-l border-line/60">
+          {imagePath ? (
+            <ProductImage
+              path={imagePath}
+              alt={imageAlt}
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              priority
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-surface-sunk" />
+          )}
+        </div>
       </div>
-    </HeroFrame>
+    </section>
   );
 }
 
 function QuietHero({ hero }: { hero: HeroSettings }) {
+  const media = hero.media;
+  const imagePath = media?.type === "image" && media.storage_path ? media.storage_path : null;
   return (
-    <HeroFrame hero={hero} fallbackPath={null} fallbackAlt="Xarina" countdown={null}>
-      <h1 id="hero-heading" className="font-display text-display-l md:text-display-xl">
-        {hero.headline || "Wearable statement dressing"}
-      </h1>
-      {hero.pitch && <p className="text-body text-ink-muted max-w-xl">{hero.pitch}</p>}
-      <div className="pt-space-2">
-        <Button asChild>
-          <Link href="/shop">Shop now</Link>
-        </Button>
+    <section aria-labelledby="hero-heading" className="border-b border-line bg-surface text-ink">
+      <div className="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center">
+        <div className="px-space-4 py-space-6 sm:px-space-6 sm:py-space-7 md:px-space-7 lg:px-space-8 flex flex-col justify-center items-center md:items-start text-center md:text-left">
+          <h1
+            id="hero-heading"
+            className="font-display italic text-[44px] sm:text-[54px] lg:text-[68px] leading-[1.0] text-ink font-normal tracking-tight"
+          >
+            {hero.headline || "Wearable Statement Dressing"}
+          </h1>
+          <div className="w-full max-w-md border-t border-line/60 my-4" />
+          <p className="font-display italic text-title sm:text-[22px] leading-snug text-ink/90 max-w-md">
+            {hero.pitch || "Quiet luxury crafted for unforgettable entrances."}
+          </p>
+          <div className="pt-6">
+            <Button asChild className="w-full max-w-sm h-12 bg-action text-on-action hover:opacity-90 label text-[12px] tracking-[0.2em] font-semibold shadow-none rounded-none">
+              <Link href="/shop">SHOP AVAILABLE NOW</Link>
+            </Button>
+          </div>
+        </div>
+        <div className="w-full min-h-[440px] md:min-h-[640px] bg-surface-sunk relative overflow-hidden border-l border-line/60">
+          {imagePath ? (
+            <ProductImage
+              path={imagePath}
+              alt={media?.alt || "Xarina atelier"}
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              priority
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-surface-sunk" />
+          )}
+        </div>
       </div>
-    </HeroFrame>
-  );
-}
-
-/** Homepage hero media from site settings (HOME-4), else the drop's first cover. */
-function HeroFrame({
-  hero,
-  fallbackPath,
-  fallbackAlt,
-  countdown,
-  children,
-}: {
-  hero: HeroSettings;
-  fallbackPath: string | null;
-  fallbackAlt: string;
-  countdown: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  const m = hero.media;
-  const media: HeroMedia =
-    m?.type === "video" && m.mux_playback_id
-      ? { kind: "video", playbackId: m.mux_playback_id, alt: m.alt || fallbackAlt }
-      : m?.type === "image" && m.storage_path
-        ? { kind: "image", path: m.storage_path, alt: m.alt || fallbackAlt }
-        : !m && fallbackPath
-          ? { kind: "image", path: fallbackPath, alt: fallbackAlt }
-          : null;
-  return (
-    <SharedHeroFrame media={media} theme={hero.theme} countdown={countdown}>
-      {children}
-    </SharedHeroFrame>
+    </section>
   );
 }
 
@@ -241,21 +298,7 @@ function UpcomingDrops({ products }: { products: ProductListing[] }) {
 
 function AvailableNow({ products }: { products: ProductListing[] }) {
   return (
-    <section aria-labelledby="available-heading" className="bg-surface-sunk">
-      <div className="gap-space-3 px-space-3 pt-space-5 pb-space-4 md:px-space-5 mx-auto flex max-w-screen-2xl items-end justify-between">
-        <div className="gap-space-1 flex flex-col">
-          <p className="label text-ink-muted">Ready to dispatch</p>
-          <h2 id="available-heading" className="font-display text-display-m">
-            Available now
-          </h2>
-        </div>
-        <Link
-          href="/shop#available"
-          className="text-body-s text-ink min-h-11 content-center underline underline-offset-4"
-        >
-          View all available now
-        </Link>
-      </div>
+    <section aria-labelledby="available-heading" className="bg-surface border-b border-line pt-8 sm:pt-12">
       <AvailableCarousel products={products} />
     </section>
   );

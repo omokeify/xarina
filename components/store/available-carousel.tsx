@@ -1,91 +1,148 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import type { ProductListing } from "@/lib/catalogue";
-import { ProductCard } from "./product-card";
+import { ProductImage } from "./product-image";
 
 /**
- * Available Now row (HOME-3, concept layout): edge to edge, one card per screen
- * on phones, two on tablets, four on desktop, scroll-snapped, hairline dividers. Arrows page through it;
- * it still scrolls by touch or keyboard without JavaScript.
+ * Available Now showcase matching the client's luxury mockup:
+ * - Centered flanked title: —— Available Now ——
+ * - Desktop: 3-column editorial grid with portrait image, italic caption, and gold hairline button.
+ * - Mobile: 2-up swipeable carousel with dot pagination indicators (••○).
  */
 export function AvailableCarousel({ products }: { products: ProductListing[] }) {
-  const ref = useRef<HTMLUListElement>(null);
-  const [index, setIndex] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  function slide(direction: -1 | 1) {
-    const el = ref.current;
+  const displayProducts = products.length > 0 ? products : [];
+  const totalPages = Math.max(1, Math.ceil(displayProducts.length / 2));
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
     if (!el) return;
-    const card = el.firstElementChild as HTMLElement | null;
-    const step = card ? card.offsetWidth : el.clientWidth;
-    el.scrollBy({ left: direction * step, behavior: "smooth" });
-  }
+    const scrollLeft = el.scrollLeft;
+    const width = el.clientWidth;
+    const page = Math.round(scrollLeft / width);
+    setActiveIndex(Math.min(totalPages - 1, Math.max(0, page)));
+  };
 
-  function onScroll() {
-    const el = ref.current;
-    const card = el?.firstElementChild as HTMLElement | null;
-    if (el && card) setIndex(Math.min(products.length - 1, Math.round(el.scrollLeft / card.offsetWidth)));
-  }
-
-  const arrow =
-    "absolute top-[40%] z-10 hidden size-11 -translate-y-1/2 items-center justify-center border border-line bg-surface text-ink hover:bg-surface-raised sm:flex";
+  const scrollToPage = (pageIndex: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({
+      left: pageIndex * el.clientWidth,
+      behavior: "smooth",
+    });
+    setActiveIndex(pageIndex);
+  };
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => slide(-1)}
-        aria-label="Previous designs"
-        className={`${arrow} left-space-3`}
-      >
-        <ArrowLeft aria-hidden className="size-4" />
-      </button>
-      <button
-        type="button"
-        onClick={() => slide(1)}
-        aria-label="Next designs"
-        className={`${arrow} right-space-3`}
-      >
-        <ArrowRight aria-hidden className="size-4" />
-      </button>
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pb-12 sm:pb-16">
+      {/* Centered Ornamental Title with Flanking Hairlines */}
+      <div className="flex items-center justify-center gap-4 sm:gap-6 mb-8 sm:mb-12">
+        <div className="h-px bg-line/80 flex-1 max-w-[80px] sm:max-w-[180px]" />
+        <h2
+          id="available-heading"
+          className="font-display italic text-[30px] sm:text-[36px] md:text-[40px] text-ink font-normal text-center tracking-tight"
+        >
+          Available Now
+        </h2>
+        <div className="h-px bg-line/80 flex-1 max-w-[80px] sm:max-w-[180px]" />
+      </div>
 
-      <ul
-        ref={ref}
-        onScroll={onScroll}
-        tabIndex={0}
-        aria-label="Available now designs"
-        className="flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto scroll-smooth motion-reduce:scroll-auto"
-      >
-        {products.map((p, i) => (
-          <li key={p.id} className="border-line w-[82vw] shrink-0 snap-start border-r sm:w-1/2 lg:w-1/4">
-            <ProductCard product={p} priority={i < 2} inset />
-          </li>
+      {/* Desktop View (>= md): 3-Column Luxury Grid */}
+      <div className="hidden md:grid md:grid-cols-3 gap-6 lg:gap-8 items-start">
+        {displayProducts.slice(0, 3).map((p) => (
+          <div key={p.id} className="flex flex-col items-center group">
+            <Link
+              href={`/p/${p.slug}`}
+              className="w-full aspect-[4/5] bg-surface-sunk relative overflow-hidden block border border-line/40 transition-transform duration-300 group-hover:scale-[1.01]"
+            >
+              {p.cover_path ? (
+                <ProductImage
+                  path={p.cover_path}
+                  alt={p.cover_alt || p.name}
+                  sizes="33vw"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-surface-sunk" />
+              )}
+            </Link>
+
+            <p className="font-display italic text-[18px] sm:text-[20px] text-ink/90 mt-4 mb-3 text-center">
+              Shop available pieces
+            </p>
+
+            <Link
+              href={`/p/${p.slug}`}
+              className="border border-accent/60 hover:border-ink hover:bg-surface-sunk/30 px-8 py-2.5 label text-[11px] tracking-[0.22em] font-medium text-ink transition-colors inline-block text-center w-full max-w-[200px]"
+            >
+              SHOP NOW
+            </Link>
+          </div>
         ))}
-      </ul>
+      </div>
 
-      <div className="border-line px-space-3 flex items-center justify-between border-t sm:hidden">
-        <span className="text-caption text-ink-muted tabular-nums">
-          {String(index + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}
-        </span>
-        <div className="flex">
-          <button
-            type="button"
-            onClick={() => slide(-1)}
-            aria-label="Previous"
-            className="text-ink inline-flex size-11 items-center justify-center"
-          >
-            <ArrowLeft aria-hidden className="size-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => slide(1)}
-            aria-label="Next"
-            className="text-ink inline-flex size-11 items-center justify-center"
-          >
-            <ArrowRight aria-hidden className="size-4" />
-          </button>
+      {/* Mobile View (< md): Swipeable 2-Column Carousel with Dot Indicators */}
+      <div className="md:hidden">
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] px-1"
+        >
+          {displayProducts.map((p) => (
+            <div
+              key={p.id}
+              className="w-[calc(50%-8px)] shrink-0 snap-start flex flex-col items-center group"
+            >
+              <Link
+                href={`/p/${p.slug}`}
+                className="w-full aspect-[4/5] bg-surface-sunk relative overflow-hidden block border border-line/40"
+              >
+                {p.cover_path ? (
+                  <ProductImage
+                    path={p.cover_path}
+                    alt={p.cover_alt || p.name}
+                    sizes="50vw"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-surface-sunk" />
+                )}
+              </Link>
+
+              <p className="font-display italic text-[15px] sm:text-[17px] text-ink/90 mt-3 mb-2 text-center line-clamp-1">
+                Shop available pieces
+              </p>
+
+              <Link
+                href={`/p/${p.slug}`}
+                className="border border-accent/60 hover:border-ink px-4 py-2 label text-[10px] tracking-[0.18em] font-medium text-ink transition-colors inline-block text-center w-full"
+              >
+                SHOP
+              </Link>
+            </div>
+          ))}
         </div>
+
+        {/* Dot Pagination Indicators Below (as seen in mobile mockup: • • ○) */}
+        {displayProducts.length > 2 && (
+          <div className="flex items-center justify-center gap-2 mt-6">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => scrollToPage(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                className={`size-2 rounded-full transition-all ${
+                  activeIndex === i ? "bg-accent scale-110" : "bg-line hover:bg-ink-muted"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
