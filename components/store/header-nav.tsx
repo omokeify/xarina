@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronRight, Menu, X } from "lucide-react";
-import { Lockup, Wordmark } from "@/components/brand/logo";
+import { Mark, Lockup, Wordmark } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 import { DRAWER_OPENED_EVENT } from "@/lib/checkout/events";
 import type { DropState } from "@/lib/catalogue";
@@ -92,27 +92,31 @@ export function HeaderNav({
       {/* ─────────────────────────────────────────────────────────────
           1. DESKTOP HEADER (>= md)
           Two tiers:
-          - Top: Centered Brand Name + Tagline, Right: Currency + Bag
+          - Top: Centered Brand Name + Tagline, Right: Currency + Actions
           - Bottom: Centered Nav Row with pipe dividers
          ───────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex flex-col">
         {/* Tier 1: Brand Center + Controls Right */}
-        <div className="relative max-w-screen-2xl w-full mx-auto px-space-5 pt-space-4 pb-space-3 flex items-center justify-center">
+        <div className="relative max-w-screen-2xl w-full mx-auto px-4 sm:px-6 md:px-8 pt-4 pb-3 flex items-center justify-center">
           <Link
             href="/"
             aria-label="Xarina home"
             className="flex flex-col items-center group text-center select-none"
           >
-            <span className="font-display text-[32px] lg:text-[36px] tracking-[0.38em] uppercase text-ink font-normal leading-none pl-[0.38em]">
-              Xarina
-            </span>
-            <span className="label text-[10px] lg:text-[11px] tracking-[0.24em] text-ink-muted uppercase mt-2">
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <Mark size={26} className="text-ink group-hover:text-accent transition-colors" />
+              <span className="w-px h-5 sm:h-6 bg-line/80" />
+              <span className="font-display text-[26px] sm:text-[30px] lg:text-[34px] tracking-[0.34em] sm:tracking-[0.38em] uppercase text-ink font-normal leading-none pl-[0.34em] sm:pl-[0.38em]">
+                Xarina
+              </span>
+            </div>
+            <span className="label text-[9.5px] sm:text-[10px] lg:text-[11px] tracking-[0.24em] text-ink-muted uppercase mt-1.5 sm:mt-2">
               Wearable Statement Dressing
             </span>
           </Link>
 
-          {/* Right Controls: [ NGN ⌄ ] and Bag Icon */}
-          <div className="absolute right-space-5 top-1/2 -translate-y-1/2 flex items-center gap-space-3">
+          {/* Right Controls: [ NGN ⌄ ] and Actions */}
+          <div className="absolute right-4 sm:right-6 md:right-8 inset-y-0 my-auto h-fit flex items-center gap-2 sm:gap-3">
             {settings}
             {actions}
           </div>
@@ -177,39 +181,44 @@ export function HeaderNav({
       {/* ─────────────────────────────────────────────────────────────
           2. MOBILE HEADER (< md)
           - Left: Hamburger Menu Icon
-          - Center: XARINA wordmark + Tagline | [ NGN ⌄ ]
-          - Right: Bag Icon
+          - Center: [Mark] | XARINA + Tagline (Always True Center)
+          - Right: Search + Bag Icons
          ───────────────────────────────────────────────────────────── */}
-      <div className="md:hidden px-space-3 py-space-2 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => setMobileOpen((v) => !v)}
-          aria-expanded={mobileOpen}
-          aria-controls="mobile-menu"
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          className="text-ink inline-flex size-11 items-center justify-center -ml-space-2"
-        >
-          {mobileOpen ? <X aria-hidden className="size-5" /> : <Menu aria-hidden className="size-5" />}
-        </button>
+      <div className="md:hidden relative px-3 py-2 flex items-center justify-between min-h-[56px]">
+        {/* Left: Menu Icon */}
+        <div className="flex items-center z-10 min-w-[60px]">
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            className="text-ink inline-flex size-10 items-center justify-center -ml-1.5 cursor-pointer hover:opacity-75 transition-opacity"
+          >
+            {mobileOpen ? <X aria-hidden className="size-5" /> : <Menu aria-hidden className="size-5" />}
+          </button>
+        </div>
 
-        <div className="flex flex-col items-center text-center">
+        {/* Center: Brand Lockup & Tagline (Always True Center) */}
+        <div className="absolute inset-x-0 mx-auto flex flex-col items-center justify-center text-center pointer-events-none select-none">
           <Link
             href="/"
             aria-label="Xarina home"
-            className="font-display text-title tracking-[0.32em] uppercase text-ink pl-[0.32em] leading-tight"
+            className="flex items-center gap-2 group pointer-events-auto"
           >
-            Xarina
-          </Link>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="label text-[9px] tracking-[0.16em] uppercase text-ink-muted">
-              Wearable Statement Dressing
+            <Mark size={18} className="text-ink group-hover:text-accent transition-colors" />
+            <span className="w-px h-3.5 bg-line/80" />
+            <span className="font-display text-[21px] tracking-[0.3em] uppercase text-ink pl-[0.3em] leading-none">
+              Xarina
             </span>
-            <span className="text-line text-[10px]">|</span>
-            {settings}
-          </div>
+          </Link>
+          <span className="label text-[9px] tracking-[0.2em] uppercase text-ink-muted mt-1 leading-none">
+            Wearable Statement Dressing
+          </span>
         </div>
 
-        <div className="flex items-center justify-end -mr-space-2">
+        {/* Right: Actions (Search + Bag) */}
+        <div className="flex items-center justify-end gap-1 z-10 min-w-[60px] -mr-1">
           {actions}
         </div>
       </div>
@@ -217,7 +226,7 @@ export function HeaderNav({
       {panel === "shop" && <ShopPanel menu={menu} />}
       {panel === "drops" && <DropsPanel drops={menu.drops} />}
 
-      {mobileOpen && <MobileMenu id="mobile-menu" menu={menu} />}
+      {mobileOpen && <MobileMenu id="mobile-menu" menu={menu} settings={settings} />}
     </div>
   );
 }
@@ -327,7 +336,15 @@ function PanelLink({ href, children }: { href: string; children: React.ReactNode
   );
 }
 
-function MobileMenu({ id, menu }: { id: string; menu: HeaderMenu }) {
+function MobileMenu({
+  id,
+  menu,
+  settings,
+}: {
+  id: string;
+  menu: HeaderMenu;
+  settings: React.ReactNode;
+}) {
   const big = "font-display text-title inline-flex min-h-11 items-center";
   return (
     <nav
@@ -336,6 +353,14 @@ function MobileMenu({ id, menu }: { id: string; menu: HeaderMenu }) {
       className="border-line bg-surface px-space-4 py-space-5 absolute inset-x-0 top-full z-40 flex h-[calc(100svh-6rem)] flex-col justify-between overflow-y-auto border-t md:hidden"
     >
       <div className="gap-space-4 flex flex-col">
+        {/* Currency & Region Selector */}
+        <div className="border-line pb-space-3 flex items-center justify-between border-b">
+          <span className="label text-ink-muted text-[11px] tracking-[0.2em] uppercase font-semibold">
+            Currency &amp; Region
+          </span>
+          <div>{settings}</div>
+        </div>
+
         <div className="border-line pb-space-4 flex flex-col border-b">
           <p className="label mb-space-2 text-ink-muted">Shop</p>
           <Link href="/shop#available" className={big}>

@@ -2,7 +2,6 @@
 
 import { useActionState, useId, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { requestPriveAccess, sendPriveSignInLink, type PriveFormState } from "@/lib/prive/actions";
 import { cn } from "@/lib/utils";
@@ -21,7 +20,12 @@ function Feedback({ state }: { state: PriveFormState }) {
   return (
     <p
       role={state.status === "error" ? "alert" : "status"}
-      className={state.status === "error" ? "text-body-s text-critical" : "text-body-s text-ink"}
+      className={cn(
+        "text-body-s py-2 px-3 border",
+        state.status === "error"
+          ? "text-critical border-critical/40 bg-critical/10"
+          : "text-accent border-accent/40 bg-accent/10",
+      )}
     >
       {state.message}
     </p>
@@ -30,24 +34,27 @@ function Feedback({ state }: { state: PriveFormState }) {
 
 function PanelHeading({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="gap-space-2 flex flex-col">
-      <h2 className="font-display text-title">{title}</h2>
-      <p className="text-body-s text-ink-muted">{children}</p>
+    <div className="flex flex-col items-start gap-1.5 border-b border-line/40 pb-4">
+      <h2 className="font-display italic text-[22px] sm:text-[25px] text-ink font-normal tracking-tight">
+        {title}
+      </h2>
+      <p className="text-body-s text-ink-muted leading-relaxed">{children}</p>
     </div>
   );
 }
 
-/** The three ways in, as in the concept: email, personal link, or ask for access. */
+/** The three ways in, styled with the Xarina Privé luxury aesthetic. */
 export function PriveGate() {
   const [tab, setTab] = useState<TabId>("email");
   const base = useId();
 
   return (
-    <div className="gap-space-5 flex flex-col">
+    <div className="flex flex-col gap-6">
+      {/* Sleek Underlined Tab Navigation */}
       <div
         role="tablist"
         aria-label="Ways to enter Xarina Privé"
-        className="border-line grid grid-cols-3 border"
+        className="flex items-center justify-center border-b border-line gap-2 sm:gap-6"
       >
         {TABS.map((t) => (
           <button
@@ -59,8 +66,10 @@ export function PriveGate() {
             aria-controls={`${base}-${t.id}`}
             onClick={() => setTab(t.id)}
             className={cn(
-              "label px-space-2 py-space-2 min-h-11 text-center leading-4 transition-colors",
-              tab === t.id ? "bg-action text-on-action" : "text-ink-muted hover:text-ink",
+              "py-3 px-2 sm:px-4 text-[11px] sm:text-[12px] tracking-[0.2em] uppercase font-semibold transition-colors border-b-2 -mb-[1px] cursor-pointer",
+              tab === t.id
+                ? "border-accent text-accent"
+                : "border-transparent text-ink-muted hover:text-ink",
             )}
           >
             {t.label}
@@ -72,7 +81,7 @@ export function PriveGate() {
         id={`${base}-${tab}`}
         role="tabpanel"
         aria-labelledby={`${base}-${tab}-tab`}
-        className="border-line p-space-4 md:p-space-5 gap-space-4 flex flex-col border"
+        className="border border-line/70 bg-surface-raised p-6 sm:p-8 flex flex-col gap-6 shadow-sm"
       >
         {tab === "email" && <SignInPanel />}
         {tab === "link" && <AccessLinkPanel />}
@@ -88,20 +97,33 @@ function SignInPanel() {
   return (
     <>
       <PanelHeading title="Verified email sign-in">
-        Approved members receive a sign-in link by email. It signs you in on this device.
+        Approved members receive a personal sign-in link by email. It signs you in on this device.
       </PanelHeading>
       {state.status === "done" ? (
         <Feedback state={state} />
       ) : (
-        <form action={action} className="gap-space-4 grid">
-          <div className="space-y-space-1">
-            <Label htmlFor="in-email">Approved member email</Label>
-            <Input id="in-email" name="email" type="email" autoComplete="email" required />
+        <form action={action} className="gap-5 grid">
+          <div className="space-y-2">
+            <Label htmlFor="in-email" className="label text-[11px] tracking-[0.2em] uppercase text-ink-muted">
+              Approved member email
+            </Label>
+            <Input
+              id="in-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              className="bg-surface-sunk/40 border-line focus:border-accent text-ink"
+            />
           </div>
           <Feedback state={state} />
-          <Button type="submit" block disabled={pending}>
-            {pending ? "Sending" : "Email me a sign-in link"}
-          </Button>
+          <button
+            type="submit"
+            disabled={pending}
+            className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 text-[#121110] label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 text-center transition-colors shadow-sm cursor-pointer mt-1"
+          >
+            {pending ? "SENDING LINK..." : "EMAIL ME A SIGN-IN LINK →"}
+          </button>
         </form>
       )}
     </>
@@ -129,22 +151,33 @@ function AccessLinkPanel() {
   return (
     <>
       <PanelHeading title="Personal access link">
-        The Xarina team can send you a link made for you alone. It works once and expires, and it cannot be
-        shared. Open it from your email, or paste it here.
+        The Xarina team issues single-use personal links for each drop. Open it from your invite, or paste it here.
       </PanelHeading>
-      <form action={open} className="gap-space-4 grid">
-        <div className="space-y-space-1">
-          <Label htmlFor="link">Your access link</Label>
-          <Input id="link" name="link" autoComplete="off" required aria-invalid={!!error} />
+      <form action={open} className="gap-5 grid">
+        <div className="space-y-2">
+          <Label htmlFor="link" className="label text-[11px] tracking-[0.2em] uppercase text-ink-muted">
+            Your access link or token
+          </Label>
+          <Input
+            id="link"
+            name="link"
+            autoComplete="off"
+            required
+            aria-invalid={!!error}
+            className="bg-surface-sunk/40 border-line focus:border-accent text-ink"
+          />
         </div>
         {error && (
-          <p role="alert" className="text-body-s text-critical">
+          <p role="alert" className="text-body-s text-critical py-2 px-3 border border-critical/40 bg-critical/10">
             {error}
           </p>
         )}
-        <Button type="submit" block>
-          Continue
-        </Button>
+        <button
+          type="submit"
+          className="w-full bg-accent hover:bg-accent/90 text-[#121110] label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 text-center transition-colors shadow-sm cursor-pointer mt-1"
+        >
+          CONTINUE TO PRIVÉ →
+        </button>
       </form>
     </>
   );
@@ -156,32 +189,61 @@ function RequestPanel() {
   return (
     <>
       <PanelHeading title="Request Xarina Privé access">
-        Our team reviews every request before each drop.
+        Our team individually approves and verifies members before each release.
       </PanelHeading>
       {state.status === "done" ? (
         <Feedback state={state} />
       ) : (
-        <form action={action} className="gap-space-4 grid">
-          <div className="space-y-space-1">
-            <Label htmlFor="req-name">Full name</Label>
-            <Input id="req-name" name="name" autoComplete="name" required />
+        <form action={action} className="gap-5 grid">
+          <div className="space-y-2">
+            <Label htmlFor="req-name" className="label text-[11px] tracking-[0.2em] uppercase text-ink-muted">
+              Full name
+            </Label>
+            <Input
+              id="req-name"
+              name="name"
+              autoComplete="name"
+              required
+              className="bg-surface-sunk/40 border-line focus:border-accent text-ink"
+            />
           </div>
-          <div className="space-y-space-1">
-            <Label htmlFor="req-email">Email</Label>
-            <Input id="req-email" name="email" type="email" autoComplete="email" required />
+          <div className="space-y-2">
+            <Label htmlFor="req-email" className="label text-[11px] tracking-[0.2em] uppercase text-ink-muted">
+              Email address
+            </Label>
+            <Input
+              id="req-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              className="bg-surface-sunk/40 border-line focus:border-accent text-ink"
+            />
           </div>
-          <div className="space-y-space-1">
-            <Label htmlFor="req-phone">WhatsApp or phone (optional)</Label>
-            <Input id="req-phone" name="phone" type="tel" autoComplete="tel" />
+          <div className="space-y-2">
+            <Label htmlFor="req-phone" className="label text-[11px] tracking-[0.2em] uppercase text-ink-muted">
+              WhatsApp or phone (optional)
+            </Label>
+            <Input
+              id="req-phone"
+              name="phone"
+              type="tel"
+              autoComplete="tel"
+              className="bg-surface-sunk/40 border-line focus:border-accent text-ink"
+            />
           </div>
-          <label className="gap-space-3 text-body-s text-ink flex min-h-11 items-center">
-            <input type="checkbox" name="dropAlerts" className="accent-action size-4 shrink-0 rounded-none" />
-            <span>Email me when a Privé drop opens.</span>
+          <label className="gap-3 text-body-s text-ink flex min-h-11 items-center cursor-pointer">
+            <input type="checkbox" name="dropAlerts" className="accent-accent size-4 shrink-0 rounded-none cursor-pointer" />
+            <span className="text-ink-muted">Email me when a Privé drop opens.</span>
           </label>
           <Feedback state={state} />
-          <Button type="submit" block disabled={pending}>
-            {pending ? "Sending" : "Request access"}
-          </Button>
+          <button
+            type="submit"
+            disabled={pending}
+            className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 text-[#121110] label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 text-center transition-colors shadow-sm cursor-pointer mt-1"
+          >
+            {pending ? "SUBMITTING REQUEST..." : "REQUEST PRIVÉ MEMBERSHIP →"}
+          </button>
         </form>
       )}
     </>

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { MessageCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ProductImage } from "@/components/store/product-image";
 import { createPublicClient } from "@/lib/supabase/public";
 import { getSiteSettings, whatsappLink } from "@/lib/site-settings";
 import { cn } from "@/lib/utils";
@@ -57,21 +57,28 @@ export default async function InfoPage({ params }: Params) {
   if (!page) notFound();
   const whatsapp = settings.whatsapp.number;
 
+  const kicker =
+    page.slug === "about"
+      ? "Maison & Story"
+      : page.slug === "faq" || page.slug === "delivery" || page.slug === "returns"
+        ? "Client Care"
+        : "Maison & Legal";
+
   return (
-    <article className="px-space-3 py-space-6 md:px-space-5 mx-auto flex max-w-3xl flex-col">
+    <article className="max-w-3xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-16 md:py-20 flex flex-col text-ink">
       {pages.length > 1 && (
-        <nav aria-label="Information pages" className="border-line mb-space-5 border-b">
-          <ul className="gap-x-space-4 flex flex-wrap">
+        <nav aria-label="Information pages" className="border-b border-line mb-8 sm:mb-12">
+          <ul className="flex flex-wrap items-center gap-x-3.5 sm:gap-x-5 md:gap-x-6 gap-y-2 py-1">
             {pages.map((p) => (
-              <li key={p.slug}>
+              <li key={p.slug} className="shrink-0">
                 <Link
                   href={`/${p.slug}`}
                   aria-current={p.slug === page.slug ? "page" : undefined}
                   className={cn(
-                    "text-body-s inline-flex min-h-11 items-center border-b-2",
+                    "inline-block py-2 text-[10.5px] sm:text-[11.5px] tracking-[0.16em] uppercase font-semibold transition-colors border-b-2 -mb-[1px]",
                     p.slug === page.slug
-                      ? "border-ink text-ink"
-                      : "text-ink-muted hover:text-ink border-transparent",
+                      ? "border-accent text-ink"
+                      : "border-transparent text-ink-muted hover:text-ink",
                   )}
                 >
                   {p.title}
@@ -82,20 +89,53 @@ export default async function InfoPage({ params }: Params) {
         </nav>
       )}
 
-      <header className="gap-space-2 flex flex-col">
-        <p className="label text-ink-muted">Xarina information</p>
-        <h1 className="font-display text-display-m md:text-display-l">{page.title}</h1>
+      {/* Header matching Homepage editorial typography */}
+      <header className="flex flex-col items-start text-left">
+        <p className="label text-ink-muted text-[11px] sm:text-[12px] tracking-[0.24em] uppercase font-semibold mb-2 sm:mb-3">
+          {kicker}
+        </p>
+        <h1 className="font-display italic text-[36px] sm:text-[44px] md:text-[52px] leading-[1.08] text-ink font-normal tracking-tight">
+          {page.title}
+        </h1>
+        {/* Warm Champagne Gold Accent Bar */}
+        <div className="w-12 h-[2px] bg-accent my-4 sm:my-5" />
       </header>
 
-      <div className="border-line mt-space-5 pt-space-5 gap-space-4 text-body flex flex-col border-t">
-        {page.body.split(/\n{2,}/).map((para, i) => (
-          <p key={i} className="whitespace-pre-line">
-            {para}
-          </p>
-        ))}
+      {/* Atelier image for About page */}
+      {page.slug === "about" && (
+        <div className="w-full aspect-[16/9] sm:aspect-[2/1] bg-surface-sunk relative overflow-hidden border border-line/60 shadow-xs mb-8 sm:mb-10">
+          <ProductImage
+            path="products/20000000-0000-4000-a000-000000000012/cover.jpg"
+            alt="Xarina atelier craftsmanship and sculptural detail"
+            sizes="(min-width: 1024px) 768px, 100vw"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
+      {/* Editorial Body Copy */}
+      <div className="space-y-5 text-ink leading-relaxed">
+        {page.body.split(/\n{2,}/).map((para, i) => {
+          const isLead = i === 0 && para.length < 120;
+          return isLead ? (
+            <p
+              key={i}
+              className="font-display italic text-[20px] sm:text-[23px] text-accent leading-snug font-normal mb-3"
+            >
+              {para}
+            </p>
+          ) : (
+            <p
+              key={i}
+              className="text-body text-ink-muted leading-[1.8] sm:leading-[1.85] font-normal whitespace-pre-line"
+            >
+              {para}
+            </p>
+          );
+        })}
       </div>
 
-      <p className="text-caption text-ink-muted mt-space-4">
+      <p className="font-display italic text-[13px] sm:text-[14px] text-ink-muted/80 mt-10 pt-4 border-t border-line/40">
         Last updated{" "}
         {new Date(page.updated_at).toLocaleDateString("en-GB", {
           day: "numeric",
@@ -104,24 +144,24 @@ export default async function InfoPage({ params }: Params) {
         })}
       </p>
 
-      <div className="border-line mt-space-6 pt-space-5 gap-space-4 flex flex-col border-t sm:flex-row sm:items-center sm:justify-between">
+      {/* Luxury Action Bar */}
+      <div className="border-t border-line mt-10 sm:mt-12 pt-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
         {whatsapp && (
-          <Button asChild>
-            <a
-              href={whatsappLink(whatsapp, `Hello Xarina, I have a question about ${page.title}.`)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <MessageCircle aria-hidden className="size-4" />
-              Contact us on WhatsApp
-            </a>
-          </Button>
+          <a
+            href={whatsappLink(whatsapp, `Hello Xarina, I have a question about ${page.title}.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2.5 bg-accent hover:bg-accent/90 text-[#121110] label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 transition-colors shadow-sm"
+          >
+            <MessageCircle aria-hidden className="size-4" />
+            <span>CONTACT US ON WHATSAPP</span>
+          </a>
         )}
         <Link
           href="/shop"
-          className="text-body-s text-ink-muted hover:text-ink min-h-11 content-center underline underline-offset-4"
+          className="label text-ink-muted hover:text-ink transition-colors text-[11px] sm:text-[12px] tracking-[0.22em] font-medium underline underline-offset-8"
         >
-          Back to the shop
+          BACK TO SHOP →
         </Link>
       </div>
     </article>

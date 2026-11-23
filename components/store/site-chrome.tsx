@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { User, Headset, Lock, Plane } from "lucide-react";
-import { Lockup } from "@/components/brand/logo";
+import { Mark, Lockup } from "@/components/brand/logo";
 import { getCollections, getStorefrontProducts, type ProductListing } from "@/lib/catalogue";
 import { dropImage, getDrops, type DropSummary } from "@/lib/drops-public";
 import type { AnnouncementSettings, WhatsAppSettings } from "@/lib/site-settings";
@@ -91,7 +91,12 @@ export async function SiteHeader() {
       <HeaderNav
         menu={buildMenu(products, collections ?? [], drops)}
         settings={<CurrencySwitcher />}
-        actions={<BagLink />}
+        actions={
+          <div className="flex items-center gap-1 sm:gap-2">
+            <SearchControl />
+            <BagLink />
+          </div>
+        }
       />
     </header>
   );
@@ -150,12 +155,17 @@ export function SiteFooter({
 
       {/* Main Luxury Bar matching client mockup */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-7 sm:py-8 flex flex-col sm:flex-row items-center justify-between gap-5 border-b border-line/40">
-        {/* Left: Brand Wordmark */}
+        {/* Left: Brand Lockup with Mark */}
         <Link
           href="/"
-          className="font-display tracking-[0.22em] text-[22px] sm:text-[24px] text-ink font-normal uppercase hover:opacity-80 transition-opacity"
+          aria-label="Xarina home"
+          className="flex items-center gap-2.5 text-ink hover:opacity-80 transition-opacity select-none group"
         >
-          XARINA
+          <Mark size={24} className="text-ink group-hover:text-accent transition-colors" />
+          <span className="w-px h-5 bg-line/80" />
+          <span className="font-display tracking-[0.22em] text-[22px] sm:text-[24px] text-ink font-normal uppercase">
+            XARINA
+          </span>
         </Link>
 
         {/* Right: Inline Pipe-Divided Links */}
@@ -211,21 +221,25 @@ export function SiteFooter({
 
 export function TrustStrip() {
   return (
-    <section aria-label="Why shop with Xarina" className="border-b border-line bg-surface py-4 sm:py-5 px-4">
-      <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-y-2.5 gap-x-4 sm:gap-x-8 text-center text-caption sm:text-body-s text-ink/90">
-        <div className="flex items-center gap-2">
-          <Lock aria-hidden="true" className="size-4 text-ink-muted stroke-[1.5]" />
+    <section aria-label="Why shop with Xarina" className="border-b border-line bg-surface py-3 sm:py-4 px-2 sm:px-4">
+      <div className="max-w-4xl mx-auto flex items-center justify-center flex-nowrap gap-1 min-[375px]:gap-2 sm:gap-6 md:gap-8 text-center text-[9.5px] min-[375px]:text-[10.5px] sm:text-caption md:text-body-s text-ink/90 whitespace-nowrap tracking-tight sm:tracking-normal">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          <Lock aria-hidden="true" className="size-3 sm:size-3.5 md:size-4 text-ink-muted stroke-[1.5] shrink-0" />
           <span>Secure payments</span>
         </div>
-        <span className="text-line select-none font-light">|</span>
-        <div className="flex items-center gap-2">
-          <Plane aria-hidden="true" className="size-4 text-ink-muted stroke-[1.5]" />
+        <span aria-hidden="true" className="text-line select-none font-light">
+          |
+        </span>
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          <Plane aria-hidden="true" className="size-3 sm:size-3.5 md:size-4 text-ink-muted stroke-[1.5] shrink-0" />
           <span>Local &amp; international delivery</span>
         </div>
-        <span className="text-line select-none font-light">|</span>
-        <div className="flex items-center gap-2">
-          <Headset aria-hidden="true" className="size-4 text-ink-muted stroke-[1.5]" />
-          <span>Personal assistance</span>
+        <span aria-hidden="true" className="text-line select-none font-light">
+          |
+        </span>
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          <Headset aria-hidden="true" className="size-3 sm:size-3.5 md:size-4 text-ink-muted stroke-[1.5] shrink-0" />
+          <span>Contact</span>
         </div>
       </div>
     </section>
