@@ -120,7 +120,7 @@ function SignInPanel() {
           <button
             type="submit"
             disabled={pending}
-            className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 text-[#121110] label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 text-center transition-colors shadow-sm cursor-pointer mt-1"
+            className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 text-on-action label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 text-center transition-colors shadow-sm cursor-pointer mt-1"
           >
             {pending ? "SENDING LINK..." : "EMAIL ME A SIGN-IN LINK →"}
           </button>
@@ -174,7 +174,7 @@ function AccessLinkPanel() {
         )}
         <button
           type="submit"
-          className="w-full bg-accent hover:bg-accent/90 text-[#121110] label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 text-center transition-colors shadow-sm cursor-pointer mt-1"
+          className="w-full bg-accent hover:bg-accent/90 text-on-action label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 text-center transition-colors shadow-sm cursor-pointer mt-1"
         >
           CONTINUE TO PRIVÉ →
         </button>
@@ -240,7 +240,7 @@ function RequestPanel() {
           <button
             type="submit"
             disabled={pending}
-            className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 text-[#121110] label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 text-center transition-colors shadow-sm cursor-pointer mt-1"
+            className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 text-on-action label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 text-center transition-colors shadow-sm cursor-pointer mt-1"
           >
             {pending ? "SUBMITTING REQUEST..." : "REQUEST PRIVÉ MEMBERSHIP →"}
           </button>

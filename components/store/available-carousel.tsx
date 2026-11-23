@@ -38,21 +38,22 @@ export function AvailableCarousel({ products }: { products: ProductListing[] }) 
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pb-12 sm:pb-16">
-      {/* Centered Ornamental Title with Flanking Hairlines */}
-      <div className="flex items-center justify-center gap-4 sm:gap-6 mb-8 sm:mb-12">
-        <div className="h-px bg-line/80 flex-1 max-w-[80px] sm:max-w-[180px]" />
+    <div className="w-full pb-12 sm:pb-16">
+      {/* Full-width Divider Line with "Available now" in Center Expanding to Edges */}
+      <div className="w-full flex items-center justify-center gap-4 sm:gap-8 mb-8 sm:mb-12 px-4 sm:px-6 md:px-8">
+        <div className="h-px bg-line/80 flex-1" />
         <h2
           id="available-heading"
-          className="font-display italic text-[30px] sm:text-[36px] md:text-[40px] text-ink font-normal text-center tracking-tight"
+          className="font-display italic text-[28px] sm:text-[36px] md:text-[40px] text-ink font-normal text-center tracking-tight shrink-0 px-2 sm:px-4"
         >
-          Available Now
+          Available now
         </h2>
-        <div className="h-px bg-line/80 flex-1 max-w-[80px] sm:max-w-[180px]" />
+        <div className="h-px bg-line/80 flex-1" />
       </div>
 
-      {/* Desktop View (>= md): 3-Column Luxury Grid */}
-      <div className="hidden md:grid md:grid-cols-3 gap-6 lg:gap-8 items-start">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
+        {/* Desktop View (>= md): 3-Column Luxury Grid */}
+        <div className="hidden md:grid md:grid-cols-3 gap-6 lg:gap-8 items-start">
         {displayProducts.slice(0, 3).map((p) => (
           <div key={p.id} className="flex flex-col items-center group">
             <Link
@@ -145,5 +146,6 @@ export function AvailableCarousel({ products }: { products: ProductListing[] }) 
         )}
       </div>
     </div>
-  );
+  </div>
+);
 }

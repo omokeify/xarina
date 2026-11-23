@@ -121,10 +121,17 @@ export default async function ProductPage({ params }: Params) {
               </nav>
               <CopyLink url={productUrl} label={`/p/${product.slug}`} />
             </div>
-            <p className="label text-ink-muted">{kicker}</p>
-            <h1 className="font-display text-display-m">{product.name}</h1>
+            <p className="label text-accent text-[11px] sm:text-[12px] tracking-[0.24em] uppercase font-semibold">
+              {kicker}
+            </p>
+            <h1 className="font-display italic text-[36px] sm:text-[44px] md:text-[50px] leading-tight text-ink font-normal tracking-tight">
+              {product.name}
+            </h1>
+            <div className="w-12 h-[2px] bg-accent my-2.5 sm:my-3" />
             {(product.tagline || product.collection) && (
-              <p className="text-body-s text-ink-muted">{product.tagline || product.collection?.name}</p>
+              <p className="font-display italic text-[16px] sm:text-[18px] text-ink-muted/90">
+                {product.tagline || product.collection?.name}
+              </p>
             )}
           </header>
 
@@ -172,7 +179,7 @@ export default async function ProductPage({ params }: Params) {
         <section aria-labelledby="related-heading" className="border-line border-t">
           <div className="px-space-3 py-space-6 md:px-space-5 mx-auto max-w-screen-2xl">
             <div className="mb-space-5 gap-space-3 flex items-end justify-between">
-              <h2 id="related-heading" className="font-display text-display-m">
+              <h2 id="related-heading" className="font-display italic text-[28px] sm:text-[34px] text-ink font-normal">
                 More from Xarina
               </h2>
               <Link

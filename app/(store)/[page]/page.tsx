@@ -151,7 +151,7 @@ export default async function InfoPage({ params }: Params) {
             href={whatsappLink(whatsapp, `Hello Xarina, I have a question about ${page.title}.`)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2.5 bg-accent hover:bg-accent/90 text-[#121110] label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 transition-colors shadow-sm"
+            className="inline-flex items-center justify-center gap-2.5 bg-accent hover:bg-accent/90 text-on-action label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 transition-colors shadow-sm"
           >
             <MessageCircle aria-hidden className="size-4" />
             <span>CONTACT US ON WHATSAPP</span>

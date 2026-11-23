@@ -117,7 +117,7 @@ export default async function PrivePage() {
               </p>
               <Link
                 href="/shop"
-                className="bg-accent hover:bg-accent/90 text-[#121110] label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-7 transition-colors shadow-sm"
+                className="bg-accent hover:bg-accent/90 text-on-action label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-7 transition-colors shadow-sm"
               >
                 EXPLORE READY TO SHIP
               </Link>

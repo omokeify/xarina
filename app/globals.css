@@ -56,6 +56,14 @@
   --color-focus: var(--x-focus);
   --color-critical: var(--x-critical);
 
+  /* shadcn/ui compatibility tokens */
+  --color-border: var(--x-line);
+  --color-card: var(--x-surface-raised);
+  --color-muted: var(--x-surface-sunk);
+  --color-muted-foreground: var(--x-ink-muted);
+  --color-background: var(--x-surface);
+  --color-foreground: var(--x-ink);
+
   /* Fonts (loaded with next/font in app/layout.tsx) */
   --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
   --font-sans: var(--font-inter), Inter, system-ui, sans-serif;

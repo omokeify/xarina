@@ -98,26 +98,28 @@ export default async function DropPageView({ params }: Params) {
   return (
     <>
       <section aria-labelledby="hero-heading" className="border-b border-line bg-surface text-ink">
-        <div className="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center">
-          {/* Mobile: Tall Portrait Fashion Photograph First */}
-          <div className="md:hidden w-full aspect-[4/5] bg-surface-sunk relative overflow-hidden">
-            {imagePath ? (
-              <ProductImage
-                path={imagePath}
-                alt={imageAlt}
-                sizes="100vw"
-                priority
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-surface-sunk" />
-            )}
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10 md:py-12 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-center">
+          {/* Mobile: Well-Fitted Portrait Fashion Photograph First */}
+          <div className="md:hidden w-full flex justify-center">
+            <div className="relative w-full max-w-[420px] aspect-[4/5] bg-surface-sunk overflow-hidden border border-line/50 shadow-xs">
+              {imagePath ? (
+                <ProductImage
+                  path={imagePath}
+                  alt={imageAlt}
+                  sizes="100vw"
+                  priority
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-surface-sunk" />
+              )}
+            </div>
           </div>
 
           {/* Left Column (Desktop) / Bottom Content (Mobile) */}
-          <div className="px-space-4 py-space-6 sm:px-space-6 sm:py-space-7 md:px-space-7 lg:px-space-8 flex flex-col justify-center items-center md:items-start text-center md:text-left">
+          <div className="flex flex-col justify-center items-start text-left max-w-xl">
             {/* Breadcrumb */}
-            <nav aria-label="Breadcrumb" className="label text-[10px] sm:text-[11px] tracking-[0.2em] text-ink-muted uppercase mb-3">
+            <nav aria-label="Breadcrumb" className="label text-[10px] sm:text-[11px] tracking-[0.2em] text-ink-muted uppercase mb-2">
               <Link href="/drops" className="hover:text-ink">
                 Drops
               </Link>
@@ -127,34 +129,39 @@ export default async function DropPageView({ params }: Params) {
               <span className="text-ink">{drop.name}</span>
             </nav>
 
+            {/* Top Kicker matching homepage */}
+            <p className="label text-[11px] sm:text-[12px] tracking-[0.24em] text-ink-muted uppercase font-semibold mb-3">
+              The Next Drop · Limited Release
+            </p>
+
             {/* Headline */}
             <h1
               id="hero-heading"
-              className="font-display italic text-[42px] sm:text-[52px] lg:text-[64px] leading-[1.0] text-ink font-normal tracking-tight"
+              className="font-display italic text-[42px] sm:text-[52px] lg:text-[64px] leading-[1.05] text-ink font-normal tracking-tight"
             >
               {drop.name}
             </h1>
 
-            {/* Thin Hairline Divider */}
-            <div className="w-full max-w-md border-t border-line/60 my-4" />
+            {/* Gold Accent Rule matching homepage */}
+            <div className="w-12 h-[2px] bg-accent my-3.5 sm:my-4" />
 
             {/* Subtitle / Pitch */}
             {drop.pitch && (
-              <p className="font-display italic text-title sm:text-[22px] leading-snug text-ink/90 max-w-md">
+              <p className="font-display italic text-[20px] sm:text-[23px] leading-snug text-ink/90 max-w-lg">
                 {drop.pitch}
               </p>
             )}
 
-            {/* Launch Date Badge */}
-            <div className="mt-5 mb-5">
-              <span className="inline-block bg-[#E3D3B0]/35 text-ink border border-accent/40 px-3.5 py-1.5 label text-[11px] tracking-[0.18em]">
+            {/* Launch Date (Styled with the signature Shop Now gold hairline frame) */}
+            <div className="mt-6 mb-3 sm:mb-4">
+              <span className="border border-accent/60 bg-transparent px-4 sm:px-5 py-2 label text-[10.5px] sm:text-[11px] tracking-[0.22em] font-medium text-ink uppercase inline-flex items-center select-none">
                 {launchBadgeText}
               </span>
             </div>
 
-            {/* Boxed Countdown Timer */}
+            {/* Boxed Countdown Timer with middle-dot separators */}
             {beforePublic && (
-              <div className="mb-6">
+              <div className="mb-6 sm:mb-7">
                 <Countdown
                   to={targetDate}
                   serverNow={server_now}
@@ -166,34 +173,37 @@ export default async function DropPageView({ params }: Params) {
             {/* Call to Action Button */}
             <Button
               asChild
-              className="w-full max-w-sm h-12 bg-action text-on-action hover:opacity-90 label text-[12px] tracking-[0.2em] font-semibold shadow-none rounded-none"
+              className="h-12 bg-action text-on-action hover:opacity-90 label text-[11.5px] sm:text-[12px] tracking-[0.2em] font-semibold px-8 shadow-none rounded-none w-full sm:w-auto"
             >
               <Link href={action.href}>{action.label.toUpperCase()}</Link>
             </Button>
 
             {/* Sub-caption */}
             {beforePublic && (
-              <p className="font-display italic text-body-s text-ink-muted mt-2.5">
-                <Link href="/prive" className="hover:text-ink transition-colors">
-                  Xarina Privé members shop first.
+              <p className="font-display italic text-body-s text-ink-muted mt-3 sm:mt-3.5">
+                Xarina Privé members shop first.{" "}
+                <Link href="/prive" className="underline underline-offset-4 hover:text-ink transition-colors">
+                  Sign in
                 </Link>
               </p>
             )}
           </div>
 
-          {/* Right Column (Desktop >= md): Tall Portrait Photograph */}
-          <div className="hidden md:block w-full h-full min-h-[580px] lg:min-h-[720px] bg-surface-sunk relative overflow-hidden border-l border-line/60">
-            {imagePath ? (
-              <ProductImage
-                path={imagePath}
-                alt={imageAlt}
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                priority
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-surface-sunk" />
-            )}
+          {/* Right Column (Desktop >= md): Well-Fitted Framed Photograph */}
+          <div className="hidden md:flex items-center justify-center lg:justify-end w-full">
+            <div className="relative w-full max-w-[520px] aspect-[4/5] bg-surface-sunk overflow-hidden border border-line/50 shadow-xs">
+              {imagePath ? (
+                <ProductImage
+                  path={imagePath}
+                  alt={imageAlt}
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  priority
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-surface-sunk" />
+              )}
+            </div>
           </div>
         </div>
       </section>

@@ -57,20 +57,20 @@ export function Countdown({
         role="timer"
         aria-live="off"
         aria-label={`${label ?? "Launch in"} ${parts.days} days ${parts.hours} hours ${parts.minutes} minutes`}
-        className={cn("flex items-center gap-2 sm:gap-3", className)}
+        className={cn("flex items-center gap-2 sm:gap-3 select-none", className)}
       >
         {boxedUnits.map(({ value, unit }, i) => (
           <div key={unit} className="flex items-center gap-2 sm:gap-3">
             {i > 0 && (
-              <span aria-hidden="true" className="font-display text-xl sm:text-2xl text-ink font-bold select-none pb-1">
-                :
+              <span aria-hidden="true" className="text-ink-muted text-base sm:text-lg select-none">
+                ·
               </span>
             )}
-            <div className="border border-line bg-surface-raised min-w-[70px] sm:min-w-[80px] py-2.5 px-3 flex flex-col items-center justify-center text-center">
-              <span className="font-display text-2xl sm:text-[32px] font-bold text-ink leading-tight tabular-nums">
+            <div className="border border-line/90 bg-surface min-w-[68px] sm:min-w-[76px] py-2.5 px-3 flex flex-col items-center justify-center text-center shadow-2xs">
+              <span className="font-display text-2xl sm:text-[32px] font-normal text-ink leading-tight tabular-nums">
                 {String(value).padStart(2, "0")}
               </span>
-              <span className="label text-[10px] tracking-[0.18em] text-ink-muted uppercase mt-0.5">
+              <span className="label text-[9.5px] sm:text-[10px] tracking-[0.2em] text-ink-muted uppercase mt-1">
                 {unit}
               </span>
             </div>

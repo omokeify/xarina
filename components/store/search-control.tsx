@@ -1,112 +1,208 @@
 "use client";
 
-import { Search, X } from "lucide-react";
-import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
+import { ExpandingSearchDock } from "@/components/ui/expanding-search-dock-shadcnui";
+import { useCurrency } from "@/lib/currency/context";
+import { formatMoney, type Currency } from "@/lib/money";
+import { productMediaUrl } from "@/lib/supabase/media-url";
+import { badgeFor } from "@/lib/drop-display";
+import type { DropState } from "@/lib/catalogue";
 
-/**
- * Header search.
- * Shows a delicate magnifying glass icon button.
- * When clicked, renders an edge-to-edge luxury overlay across the top of the viewport
- * via createPortal, completely preventing overlap or horizontal clipping on mobile, tablet, and desktop.
- */
+type SearchItem = {
+  id: string;
+  slug: string;
+  name: string;
+  collection_name: string | null;
+  drop_name: string | null;
+  cover_path: string | null;
+  cover_alt: string | null;
+  prices: { NGN?: number | null; GBP?: number | null; USD?: number | null } | null;
+  drop_state: DropState | null;
+  sold_out: boolean;
+  section: "available" | "upcoming";
+};
+
 export function SearchControl() {
-  const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
   const pathname = usePathname();
+  const { currency } = useCurrency();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [results, setResults] = useState<SearchItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Debounce query input (150ms for snappy auto-discovery)
   useEffect(() => {
-    if (open) {
-      inputRef.current?.focus();
+    const handler = setTimeout(() => {
+      setDebouncedQuery(query.trim());
+    }, 150);
+    return () => clearTimeout(handler);
+  }, [query]);
+
+  // Fetch results as debounced query changes
+  useEffect(() => {
+    if (!debouncedQuery) {
+      setResults([]);
+      setLoading(false);
+      return;
     }
-  }, [open]);
 
-  // Collapse after navigating (including after a search).
-  useEffect(() => setOpen(false), [pathname]);
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
-  useEffect(() => {
-    if (!open) return;
-    const onPointerDown = (e: PointerEvent) => {
-      if (!formRef.current?.contains(e.target as Node) && !buttonRef.current?.contains(e.target as Node)) {
-        setOpen(false);
-      }
+    setLoading(true);
+
+    fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`, {
+      signal: controller.signal,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setResults(data.results ?? []);
+        setLoading(false);
+
+        // If currently on /search page, automatically keep page synced without requiring Enter
+        if (pathname === "/search") {
+          router.replace(`/search?q=${encodeURIComponent(debouncedQuery)}`, { scroll: false });
+        }
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      controller.abort();
     };
-    document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [open]);
+  }, [debouncedQuery, pathname, router]);
 
-  function close() {
-    setOpen(false);
-    buttonRef.current?.focus();
-  }
+  const handleSelectProduct = () => {
+    setQuery("");
+    setIsExpanded(false);
+  };
 
-  const overlay =
-    open && mounted
-      ? createPortal(
-          <div className="fixed inset-x-0 top-0 z-[60] bg-surface border-b border-line px-4 sm:px-6 md:px-8 h-16 sm:h-[72px] flex items-center shadow-md animate-in fade-in duration-150">
-            <form
-              ref={formRef}
-              role="search"
-              action="/search"
-              onKeyDown={(e) => e.key === "Escape" && close()}
-              className="w-full max-w-4xl mx-auto flex items-center gap-2.5 sm:gap-4"
-            >
-              <label htmlFor="header-search" className="sr-only">
-                Search designs or drops
-              </label>
-              <Search aria-hidden="true" className="size-4 sm:size-5 text-accent shrink-0" />
-              <input
-                ref={inputRef}
-                id="header-search"
-                name="q"
-                type="search"
-                maxLength={80}
-                placeholder="Search designs, collections, drops, fabrics..."
-                autoComplete="off"
-                className="w-full bg-transparent text-body-s sm:text-body text-ink placeholder:text-ink-muted/70 focus:outline-hidden py-2"
-              />
-              <button
-                type="submit"
-                className="bg-accent hover:bg-accent/90 text-[#121110] label text-[10.5px] sm:text-[11.5px] tracking-[0.2em] font-semibold py-2 px-3.5 sm:px-5 shrink-0 transition-colors cursor-pointer"
-              >
-                SEARCH
-              </button>
-              <button
-                type="button"
-                aria-label="Close search"
-                onClick={close}
-                className="text-ink-muted hover:text-ink inline-flex size-9 sm:size-10 shrink-0 items-center justify-center transition-colors cursor-pointer"
-              >
-                <X aria-hidden="true" className="size-5" />
-              </button>
-            </form>
-          </div>,
-          document.body,
-        )
-      : null;
+  const handleSearchSubmit = (q: string) => {
+    if (q.trim()) {
+      router.push(`/search?q=${encodeURIComponent(q.trim())}`);
+      setQuery("");
+      setIsExpanded(false);
+    }
+  };
 
   return (
-    <>
-      <button
-        ref={buttonRef}
-        type="button"
-        aria-label="Search"
-        aria-expanded={open}
-        onClick={() => setOpen(true)}
-        className="text-ink hover:text-accent inline-flex size-9 sm:size-10 shrink-0 items-center justify-center transition-colors cursor-pointer"
-      >
-        <Search aria-hidden="true" className="size-4 sm:size-[18px]" />
-      </button>
+    <ExpandingSearchDock
+      value={query}
+      onChange={setQuery}
+      onSearch={handleSearchSubmit}
+      isLoading={loading}
+      onExpandedChange={setIsExpanded}
+      placeholder="Search designs, drops, fabrics..."
+    >
+      {isExpanded && query.trim().length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -6, scale: 0.98 }}
+          transition={{ duration: 0.15 }}
+          className="absolute right-0 top-[calc(100%+8px)] w-[min(360px,calc(100vw-32px))] bg-surface border border-line rounded-lg shadow-xl overflow-hidden z-50 text-ink"
+        >
+          {/* Header bar */}
+          <div className="flex items-center justify-between px-3.5 py-2 border-b border-line bg-surface-sunk/30">
+            <span className="label text-[10px] tracking-[0.18em] uppercase text-ink-muted font-semibold">
+              {loading ? "SEARCHING..." : `${results.length} ${results.length === 1 ? "DESIGN FOUND" : "DESIGNS FOUND"}`}
+            </span>
+          </div>
 
-      {overlay}
-    </>
+          {/* Results List */}
+          <div className="max-h-[320px] overflow-y-auto divide-y divide-line/40">
+            {loading && results.length === 0 ? (
+              <div className="py-8 px-4 text-center">
+                <Loader2 className="size-5 animate-spin mx-auto text-accent mb-2" />
+                <p className="text-body-s text-ink-muted">Searching atelier pieces...</p>
+              </div>
+            ) : results.length > 0 ? (
+              results.slice(0, 5).map((item) => {
+                const amount = item.prices?.[currency as Currency];
+                const priceFormatted = amount != null ? formatMoney(amount, currency as Currency) : null;
+                const badge = badgeFor(item.drop_state, item.sold_out);
+
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/p/${item.slug}`}
+                    onClick={handleSelectProduct}
+                    className="flex items-center gap-3 p-3 hover:bg-surface-sunk/50 transition-colors group cursor-pointer"
+                  >
+                    <div className="relative aspect-[4/5] w-11 shrink-0 bg-surface-sunk overflow-hidden rounded-2xs border border-line/60">
+                      {item.cover_path ? (
+                        <Image
+                          src={productMediaUrl(item.cover_path)}
+                          alt={item.cover_alt ?? item.name}
+                          fill
+                          sizes="44px"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="size-full flex items-center justify-center text-ink-muted text-xs">X</div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="label text-[9px] tracking-[0.18em] uppercase text-accent line-clamp-1 mb-0.5 font-semibold">
+                        {item.drop_name ?? item.collection_name ?? "COUTURE"}
+                      </p>
+                      <h4 className="font-display italic text-[15px] sm:text-[16px] text-ink leading-snug line-clamp-1 group-hover:text-accent transition-colors font-normal">
+                        {item.name}
+                      </h4>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        {priceFormatted && (
+                          <span className="text-body-xs font-semibold tabular-nums text-ink">
+                            {priceFormatted}
+                          </span>
+                        )}
+                        <span className="label text-[8px] tracking-[0.16em] uppercase px-1.5 py-0.5 border border-line/60 rounded-2xs text-ink-muted">
+                          {badge}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })
+            ) : (
+              <div className="py-8 px-4 text-center">
+                <p className="font-display italic text-base text-ink mb-1">No silhouettes found</p>
+                <p className="text-body-xs text-ink-muted">
+                  Try searching by silhouette, drop name, or fabric
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Footer bar */}
+          {results.length > 0 && (
+            <div className="p-2.5 border-t border-line bg-surface-sunk/35 text-center">
+              <Link
+                href={`/search?q=${encodeURIComponent(query)}`}
+                onClick={handleSelectProduct}
+                className="label text-[10px] tracking-[0.2em] uppercase font-semibold text-ink hover:text-accent transition-colors py-1 block"
+              >
+                VIEW ALL {results.length} {results.length === 1 ? "DESIGN" : "DESIGNS"} IN FULL CATALOGUE →
+              </Link>
+            </div>
+          )}
+        </motion.div>
+      )}
+    </ExpandingSearchDock>
   );
 }

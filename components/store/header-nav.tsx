@@ -122,10 +122,10 @@ export function HeaderNav({
           </div>
         </div>
 
-        {/* Tier 2: Centered Nav Links with Pipe Dividers */}
+        {/* Tier 2: Centered Nav Links */}
         <nav
           aria-label="Main navigation"
-          className="border-t border-line/60 py-2.5 flex items-center justify-center gap-6 text-center"
+          className="pb-3 pt-1 flex items-center justify-center gap-7 sm:gap-8 text-center"
         >
           <button
             type="button"
@@ -136,7 +136,6 @@ export function HeaderNav({
           >
             Shop
           </button>
-          <span className="text-line select-none font-light">|</span>
 
           {menu.drops.length > 0 ? (
             <button
@@ -157,7 +156,6 @@ export function HeaderNav({
               Upcoming Drops
             </Link>
           )}
-          <span className="text-line select-none font-light">|</span>
 
           <Link
             href="/prive"
@@ -166,7 +164,6 @@ export function HeaderNav({
           >
             Xarina Privé
           </Link>
-          <span className="text-line select-none font-light">|</span>
 
           <Link
             href="/about"

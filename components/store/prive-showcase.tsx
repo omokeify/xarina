@@ -45,7 +45,7 @@ export function PriveShowcase() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 w-full max-w-md">
           <Link
             href="/prive"
-            className="w-full sm:w-auto flex-1 min-w-[170px] bg-accent hover:bg-accent/90 text-[#121110] label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 text-center transition-colors shadow-sm"
+            className="w-full sm:w-auto flex-1 min-w-[170px] bg-accent hover:bg-accent/90 text-on-action label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold py-3.5 px-6 text-center transition-colors shadow-sm"
           >
             DISCOVER PRIVÉ
           </Link>

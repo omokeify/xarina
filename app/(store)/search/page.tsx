@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Search } from "lucide-react";
 import { ProductCard } from "@/components/store/product-card";
 import { getStorefrontProducts } from "@/lib/catalogue";
 import { matchesQuery, normaliseQuery } from "@/lib/search";
@@ -19,41 +18,17 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   return (
     <div className="mx-auto max-w-screen-xl px-4 sm:px-6 md:px-8 py-10 sm:py-16 md:py-20">
       <header className="flex flex-col items-start text-left max-w-2xl">
-        <p className="label text-ink-muted text-[11px] sm:text-[12px] tracking-[0.24em] uppercase font-semibold mb-2 sm:mb-3">
+        <p className="label text-accent text-[11px] sm:text-[12px] tracking-[0.24em] uppercase font-semibold mb-2 sm:mb-3">
           CATALOGUE SEARCH
         </p>
         <h1 className="font-display italic text-[36px] sm:text-[44px] md:text-[50px] leading-[1.08] text-ink font-normal tracking-tight">
-          Search Designs
+          {hasQuery ? `Results for “${query}”` : "Search Designs"}
         </h1>
         <div className="w-12 h-[2px] bg-accent my-4 sm:my-5" />
       </header>
 
-      <form role="search" action="/search" className="mt-4 sm:mt-6 flex max-w-2xl gap-2.5">
-        <label htmlFor="q" className="sr-only">
-          Search the shop
-        </label>
-        <input
-          id="q"
-          name="q"
-          type="search"
-          defaultValue={query}
-          autoFocus={!hasQuery}
-          placeholder="Search by silhouette, drop name, or fabric..."
-          maxLength={80}
-          className="h-[48px] sm:h-[52px] w-full min-w-0 rounded-xs border border-line bg-surface-raised px-4 text-body-s sm:text-body text-ink placeholder:text-ink-muted/70 focus:outline-hidden focus:border-accent transition-colors shadow-xs"
-        />
-        <button
-          type="submit"
-          aria-label="Search"
-          className="shrink-0 bg-accent hover:bg-accent/90 text-[#121110] px-5 sm:px-7 label text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
-        >
-          <Search aria-hidden="true" className="size-4 sm:size-4.5" />
-          <span className="hidden sm:inline">SEARCH</span>
-        </button>
-      </form>
-
-      {hasQuery && (
-        <section aria-labelledby="results-heading" className="mt-10 sm:mt-12 border-t border-line/60 pt-8 sm:pt-10">
+      {hasQuery ? (
+        <section aria-labelledby="results-heading" className="mt-6 sm:mt-8">
           <h2
             id="results-heading"
             role="status"
@@ -62,7 +37,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           >
             {results.length === 0
               ? `No silhouettes found for “${query}”`
-              : `${results.length} ${results.length === 1 ? "design" : "designs"} found for “${query}”`}
+              : `${results.length} ${results.length === 1 ? "design" : "designs"} found`}
           </h2>
           {results.length === 0 ? (
             <div className="max-w-md py-6 flex flex-col items-start gap-4">
@@ -86,6 +61,18 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             </ul>
           )}
         </section>
+      ) : (
+        <div className="mt-6 max-w-md flex flex-col items-start gap-4">
+          <p className="text-body text-ink-muted leading-relaxed">
+            Use the global search dock in the header above to auto-discover silhouettes, drops, and fabrics in real time.
+          </p>
+          <Link
+            href="/shop"
+            className="label text-ink hover:text-accent underline underline-offset-8 transition-colors text-[11px] sm:text-[12px] tracking-[0.22em] font-semibold"
+          >
+            BROWSE ALL AVAILABLE PIECES →
+          </Link>
+        </div>
       )}
     </div>
   );
