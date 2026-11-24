@@ -41,6 +41,77 @@
   color-scheme: dark;
 }
 
+/* White & Black — High-Fashion Minimalist Monochrome Edition */
+:root[data-theme="mono"],
+[data-theme="mono-white"] {
+  --x-surface: #ffffff;
+  --x-surface-raised: #ffffff;
+  --x-surface-sunk: #f4f4f4;
+  --x-ink: #000000;
+  --x-ink-muted: #555555;
+  --x-line: #e2e2e2;
+  --x-accent: #000000;
+  --x-action: #000000;
+  --x-on-action: #ffffff;
+  --x-focus: #000000;
+  --x-critical: #000000;
+  color-scheme: light;
+}
+
+/* Noir Black & White — Pitch Black Haute Couture Edition */
+:root[data-theme="mono-noir"],
+[data-theme="noir"] {
+  --x-surface: #000000;
+  --x-surface-raised: #0d0d0d;
+  --x-surface-sunk: #171717;
+  --x-ink: #ffffff;
+  --x-ink-muted: #999999;
+  --x-line: #262626;
+  --x-accent: #ffffff;
+  --x-action: #ffffff;
+  --x-on-action: #000000;
+  --x-focus: #ffffff;
+  --x-critical: #ffffff;
+  color-scheme: dark;
+}
+
+/* In White & Black themes, Privé sections become pure Onyx Black & Crisp White (no warm champagne/gold) */
+:root[data-theme="mono"] [data-theme="prive"],
+:root[data-theme="mono-white"] [data-theme="prive"],
+:root[data-theme="mono-noir"] [data-theme="prive"],
+:root[data-theme="noir"] [data-theme="prive"] {
+  --x-surface: #000000;
+  --x-surface-raised: #0a0a0a;
+  --x-surface-sunk: #141414;
+  --x-ink: #ffffff;
+  --x-ink-muted: #999999;
+  --x-line: #222222;
+  --x-accent: #ffffff;
+  --x-action: #ffffff;
+  --x-on-action: #000000;
+  --x-focus: #ffffff;
+  --x-critical: #ffffff;
+  color-scheme: dark;
+}
+
+/* Preview-only swatch colours for the footer palette picker and aesthetic
+   selector. These are never applied to the shop UI itself, only shown as
+   samples, so they live here rather than as raw hex in components. */
+:root {
+  --x-preview-ivory-surface: #f4f0e8;
+  --x-preview-ivory-accent: #a88b5e;
+  --x-preview-ivory-text: #1c1a17;
+  --x-preview-ivory-line: #cfc6b8;
+  --x-preview-mono-surface: #ffffff;
+  --x-preview-mono-accent: #000000;
+  --x-preview-mono-text: #000000;
+  --x-preview-mono-line: #d1d5db;
+  --x-preview-noir-surface: #050505;
+  --x-preview-noir-accent: #ffffff;
+  --x-preview-noir-text: #ffffff;
+  --x-preview-noir-line: #404040;
+}
+
 @theme inline {
   /* Only brand colours exist: Tailwind's default palette is removed. */
   --color-*: initial;

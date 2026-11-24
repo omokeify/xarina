@@ -12,6 +12,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { HeaderNav, type HeaderMenu, type MenuDrop } from "./header-nav";
 import { FooterRegion } from "./footer-region";
 import { FooterSignup } from "./footer-signup";
+import { FooterThemeSwatches } from "./footer-theme-swatches";
 
 export function AnnouncementBar({ settings }: { settings: AnnouncementSettings }) {
   // If explicitly disabled, don't show; otherwise display settings text or default chic announcement
@@ -196,10 +197,13 @@ export function SiteFooter({
       </div>
 
       {/* Discreet Footnote & Legal Links */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-caption text-ink-muted text-center sm:text-left">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-3 text-caption text-ink-muted text-center md:text-left">
         <p className="font-display italic text-[13px] sm:text-[14px]">
           © {new Date().getFullYear()} Xarina · Wearable statement dressing
         </p>
+
+        {/* Minimal Luxury Palette Swatches */}
+        <FooterThemeSwatches />
 
         <div className="flex items-center gap-4 text-[11px] tracking-wider uppercase">
           <Link href="/privacy" className="hover:text-ink transition-colors">

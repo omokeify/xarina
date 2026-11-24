@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   description: "Wearable statement dressing.",
 };
 
-// Runs before first paint so a saved dark choice never flashes light. Default is light.
-const THEME_SCRIPT = `try{if(localStorage.getItem("xarina-theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}`;
+// Runs before first paint so saved theme choices or ?theme= query never flash. Default is light ivory.
+const THEME_SCRIPT = `try{var u=new URLSearchParams(window.location.search).get("theme");var t=u||localStorage.getItem("xarina-theme");if(t&&t!=="light"&&t!=="default"){document.documentElement.dataset.theme=t;if(u)localStorage.setItem("xarina-theme",u);}}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
